@@ -1,6 +1,0 @@
-#ifndef AUXSMALLCLASS_H
-#define AUXSMALLCLASS_H
-
-enum class Depth {COMPLETE,NOBRANCHES};
-
-#endif // AUXSMALLCLASS_H
