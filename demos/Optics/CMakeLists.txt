@@ -15,7 +15,7 @@ set(PROJECT_SOURCES
 add_executable(${This} ${PROJECT_SOURCES})
 
 target_include_directories(${This} 
-	PUBLIC ${CMAKE_SOURCE_DIR}
+	PUBLIC ${CMAKE_SOURCE_DIR}/paramtree
 )
 target_link_libraries(${This}
 	PRIVATE Qt6::Widgets
