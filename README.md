@@ -15,6 +15,7 @@ Library links with Qt6 modules
 <ul>
 <li> Qt6::Core </li>
 <li> Qt6::Widgets </li>
+</ul>
 
 Build is done using CMake
 
@@ -42,6 +43,7 @@ Alternatively we can use QtCreator to build the library and run the examples,
 <li> Navigate to the ParamTree folder downloaded from github and open the CMakeLists.txt file </li>
 <li> Build the project to create a paramtree library file (shared) </li> 
 <li> Run a demo subdirectory to see examples of how the library works </li>
+</ul>
 
 # License #
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
