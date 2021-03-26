@@ -18,8 +18,8 @@ target_include_directories(${This}
 	PUBLIC ${CMAKE_SOURCE_DIR}/paramtree
 )
 target_link_libraries(${This}
-	PRIVATE Qt6::Widgets
-        PUBLIC paramtree
+        PRIVATE Qt6::Widgets
+        PRIVATE paramtree
 )
 
 
