@@ -21,8 +21,8 @@ Build is done using CMake
 
 # Installation #
 
-If not installed, <a href = https://doc.qt.io/qt-6/gettingstarted.html> get and install Qt6 </a>
-and <a href = https://cmake.org/download/> download CMake </a>.
+If not installed, get and install <a href = https://doc.qt.io/qt-6/gettingstarted.html>Qt6 </a>
+and download <a href = https://cmake.org/download/>CMake </a>.
 
 To build the ParamTree library from the terminal use
 ```bash
