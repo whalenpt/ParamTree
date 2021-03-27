@@ -2,6 +2,7 @@
 #include "paramtreeitem.h"
 #include "scientificlineedit.h"
 #include "widgetinitializers.h"
+#include <stdexcept>
 #include <QComboBox>
 #include <QSpinBox>
 #include <QLineEdit>

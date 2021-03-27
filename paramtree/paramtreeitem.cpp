@@ -2,6 +2,7 @@
 #include "paramtreemodel.h"
 #include <QVariant>
 #include <QDebug>
+#include <stdexcept>
 
 TreeItem::TreeItem(const QString& name,const QVariant& val,DataType dt,
                    const AuxMap& aux_map) :
