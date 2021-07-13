@@ -28,6 +28,7 @@ _deps
 *.so.*
 *.dll
 *.dylib
+*.sh
 
 # Qt-es
 object_script.*.Release
@@ -71,5 +72,6 @@ compile_commands.json
 *creator.user*
 
 *_qmlcache.qrc
+
 
 
