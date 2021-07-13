@@ -9,15 +9,12 @@
 #include <QModelIndex>
 
 
-class TreeKeyException : public std::exception
+class TreeKeyException : public std::invalid_argument
 {
 public:
-    explicit TreeKeyException(const QString& key) : m_key(key) {}
-    ~TreeKeyException() {}
-    const char* what() const noexcept {
-        QString msg = "The key " + m_key + " was not found in the TreeItem.";
-        return msg.toStdString().c_str();
-    }
+    explicit TreeKeyException(const QString& key) : std::invalid_argument(\
+            QString("The key " + key + " was not found in the TreeItem.").toStdString()),
+            m_key(key) {}
 private:
     QString m_key;
 };
