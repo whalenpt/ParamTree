@@ -29,6 +29,7 @@ _deps
 *.dll
 *.dylib
 *.sh
+*.swp
 
 # Qt-es
 object_script.*.Release
