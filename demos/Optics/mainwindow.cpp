@@ -1,3 +1,5 @@
+
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "paramtreemodel.h"
@@ -66,10 +68,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_model,&QAbstractItemModel::rowsInserted,this,&MainWindow::expandAll);
 
     readSettings();
-    if(!m_filename.isEmpty())
-        m_model->load(m_filename);
-    else
-        optics::generateTree(m_model);
+    optics::generateTree(m_model);
+//    if(!m_filename.isEmpty())
+//        m_model->load(m_filename);
+//    else
+//        optics::generateTree(m_model);
 
     expandAll();
     QVBoxLayout* vbox = new QVBoxLayout;
