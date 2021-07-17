@@ -21,11 +21,16 @@ QWidget* ParamItemDelegate::createEditor(QWidget *parent, const QStyleOptionView
 {
     const TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
     if(item->dtype() == TreeItem::DataType::COMBO){
-        QVariant range = item->aux("RANGE");
-        if(!range.canConvert<QStringList>())
-            throw std::runtime_error("ParamItemDelegate::createEditor error.");
+        QStringList range;
+        if(item->hasAux("RANGE")){
+            QVariant rangevar = item->aux("RANGE");
+            if(!rangevar.canConvert<QStringList>())
+                throw std::runtime_error("ParamItemDelegate::createEditor error.");
+            range = rangevar.toStringList();
+        }
         combo_box = new QComboBox(parent);
-        combo_box->addItems(range.toStringList());
+        if(!range.isEmpty())
+            combo_box->addItems(range);
         combo_box->setStyleSheet("border: none");
         connect(combo_box,SIGNAL(currentIndexChanged(int)),this,SLOT(setComboData(int)));
         return combo_box;
