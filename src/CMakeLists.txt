@@ -21,7 +21,7 @@ else()
 endif()
 
 
-set(SOURCE_LIST 
+set(SOURCE_FILES
 	generatewidgets.cpp
 	groupboxwidget.cpp
 	itemwidget.cpp
@@ -46,33 +46,48 @@ set(SOURCE_LIST
 	widgetinitializers.cpp
 )
 
-set(HEADER_LIST ParamTree_global.h
-	auxsmallclass.h
-	generatewidgets.h
-	groupboxwidget.h
-	itemwidget.h
-	paramcheckbox.h
-	paramcombobox.h
-	paramdoublespinbox.h
-	paramgroupbox.h
-	paramgroupwidget.h
-	paramitemdelegate.h
-	paramlineedit.h
-	paramscientificlineedit.h
-	paramspinbox.h
-	paramtabwidget.h
-	paramtree.h
-	paramtreeitem.h
-	paramtreemodel.h
-	paramtreeview.h
-	paramtreewidget.h
-	scientificlineedit.h
-	tabpage.h
-	tabwidget.h
-	widgetinitializers.h
+set(INCL_DIR "${ParamTree_SOURCE_DIR}/include/ParamTree")
+set(INCLUDE_FILES 
+    "${INCL_DIR}/ParamTree_global.h"
+	"${INCL_DIR}/auxsmallclass.h"
+	"${INCL_DIR}/generatewidgets.h"
+	"${INCL_DIR}/groupboxwidget.h"
+	"${INCL_DIR}/itemwidget.h"
+	"${INCL_DIR}/paramcheckbox.h"
+	"${INCL_DIR}/paramcombobox.h"
+	"${INCL_DIR}/paramdoublespinbox.h"
+	"${INCL_DIR}/paramgroupbox.h"
+	"${INCL_DIR}/paramgroupwidget.h"
+	"${INCL_DIR}/paramitemdelegate.h"
+	"${INCL_DIR}/paramlineedit.h"
+	"${INCL_DIR}/paramscientificlineedit.h"
+	"${INCL_DIR}/paramspinbox.h"
+	"${INCL_DIR}/paramtabwidget.h"
+	"${INCL_DIR}/paramtree.h"
+	"${INCL_DIR}/paramtreeitem.h"
+	"${INCL_DIR}/paramtreemodel.h"
+	"${INCL_DIR}/paramtreeview.h"
+	"${INCL_DIR}/paramtreewidget.h"
+	"${INCL_DIR}/scientificlineedit.h"
+	"${INCL_DIR}/tabpage.h"
+	"${INCL_DIR}/tabwidget.h"
+	"${INCL_DIR}/widgetinitializers.h"
 )
 
-add_library(paramtree ${SOURCE_LIST} ${HEADER_LIST})
+add_library(paramtree ${SOURCE_FILES} ${INCLUDE_FILES})
+
+target_include_directories(paramtree
+    PRIVATE
+	$<BUILD_INTERFACE:${ParamTree_SOURCE_DIR}/include/ParamTree>
+	$<INSTALL_INTERFACE:include/ParamTree>
+)
+
+target_include_directories(paramtree
+    PUBLIC
+	$<BUILD_INTERFACE:${ParamTree_SOURCE_DIR}/include>
+	$<INSTALL_INTERFACE:include>
+)
+
 
 target_link_libraries(paramtree
     PRIVATE Qt6::Core

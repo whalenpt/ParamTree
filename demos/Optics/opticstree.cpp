@@ -1,6 +1,8 @@
+
+
 #include "opticstree.h"
-#include "paramtreemodel.h"
-#include "paramtreeitem.h"
+#include <ParamTree/paramtreemodel.h>
+#include <ParamTree/paramtreeitem.h>
 #include <QDebug>
 #include <QVariant>
 #include <QSettings>

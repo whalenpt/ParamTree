@@ -4,10 +4,8 @@
 #include <QMainWindow>
 #include <QCloseEvent>
 #include <QVBoxLayout>
-#include "paramtreemodel.h"
-#include "paramtreewidget.h"
-#include "paramtreeview.h"
-
+#include <ParamTree/paramtreemodel.h>
+#include <ParamTree/paramtreeview.h>
 
 namespace Ui {
 class MainWindow;
@@ -41,9 +39,6 @@ private:
     QVBoxLayout* m_top_layout;
     QVBoxLayout* m_input_layout;
     QVBoxLayout* m_medium_layout;
-
-//    ParamTreeWidget* m_input_group;
-//    ParamTreeWidget* m_medium_group;
 
     void readSettings();
     void writeSettings();

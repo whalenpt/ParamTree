@@ -2,13 +2,11 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "paramtreemodel.h"
-#include "paramtreeview.h"
-#include "paramcombobox.h"
-#include "paramlineedit.h"
-#include "paramtreewidget.h"
-#include "paramtabwidget.h"
 #include "opticstree.h"
+
+#include <ParamTree/paramtreemodel.h>
+#include <ParamTree/paramtreeview.h>
+#include <ParamTree/paramtabwidget.h>
 
 #include <QSettings>
 #include <QVBoxLayout>
