@@ -1,15 +1,25 @@
 cmake_minimum_required(VERSION 3.5)
-
-find_package(Qt6 COMPONENTS Core REQUIRED)
-find_package(Qt6 COMPONENTS Widgets REQUIRED)
+option(PARAMTREE_STATIC "Build ParamTree as static (ON) or shared library (OFF)" OFF)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(Qt6 COMPONENTS Core REQUIRED)
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
+
+if(NOT PARAMTREE_STATIC)
+    set(BUILD_SHARED_LIBS ON)
+    message(STATUS "Building shared ParamTree library")
+else()
+    set(BUILD_SHARED_LIBS OFF)
+    message(STATUS "Building static ParamTree library")
+endif()
+
 
 set(SOURCE_LIST 
 	generatewidgets.cpp
@@ -62,10 +72,12 @@ set(HEADER_LIST ParamTree_global.h
 	widgetinitializers.h
 )
 
-add_library(paramtree SHARED ${SOURCE_LIST} ${HEADER_LIST})
+add_library(paramtree ${SOURCE_LIST} ${HEADER_LIST})
+
 target_link_libraries(paramtree
     PRIVATE Qt6::Core
     PRIVATE Qt6::Widgets)
+
 target_compile_definitions(paramtree PRIVATE PARAMTREE_LIBRARY)
 
 
