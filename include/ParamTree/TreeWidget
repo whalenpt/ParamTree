@@ -1,0 +1,9 @@
+
+#ifndef TREEWIDGET
+#define TREEWIDGET
+
+#include "groupwidget/treewidget.h"
+
+#endif
+
+
