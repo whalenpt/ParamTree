@@ -3,6 +3,9 @@
 
 #include <QWidget>
 #include <QString>
+
+namespace paramtree{
+
 class TreeItem;
 
 class ItemWidget : public QWidget
@@ -12,6 +15,8 @@ public:
 private:
     QString m_name;
 };
+
+}
 
 
 #endif // ITEMWIDGET_H

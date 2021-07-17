@@ -1,13 +1,15 @@
 
 
 #include "opticstree.h"
-#include <ParamTree/paramtreemodel.h>
-#include <ParamTree/paramtreeitem.h>
+#include <ParamTree/modelview/treemodel.h>
+#include <ParamTree/TreeItem>
 #include <QDebug>
 #include <QVariant>
 #include <QSettings>
 
 namespace optics{
+
+using namespace paramtree;
 
 const QStringList INPUT_T_KEY{"INPUT PULSE","T"};
 const QStringList INPUT_R_KEY{"INPUT PULSE","R"};
@@ -17,7 +19,7 @@ const QStringList INPUT_T_SUPERGAUSSM_KEY{"INPUT PULSE","T","m"};
 
 variant_map default_map;
 
-void generateTree(ParamTreeModel* model)
+void generateTree(TreeModel* model)
 {
     generateDefaultMap();
     TreeItem sim_name("Simulation Name",default_map["Simulation Name"]);
@@ -102,7 +104,7 @@ void generateDefaultMap()
 }
 
 
-void loadPlasma(ParamTreeModel* model){
+void loadPlasma(TreeModel* model){
 
     QSettings settings;
     QStringList rho_key,multiK_key,sigK_key,coltime_key,ui_key;
@@ -124,7 +126,7 @@ void loadPlasma(ParamTreeModel* model){
     model->addItem(plasma,model->getIndex("MEDIUM"));
 }
 
-void updatePlasma(const TreeItem& item,ParamTreeModel* model)
+void updatePlasma(const TreeItem& item,TreeModel* model)
 {
     QString val = item.value().toString();
     if(val == "on"){
@@ -141,7 +143,7 @@ void updatePlasma(const TreeItem& item,ParamTreeModel* model)
     }
 }
 
-void updateShapeT(const TreeItem& item,ParamTreeModel* model)
+void updateShapeT(const TreeItem& item,TreeModel* model)
 {
     QString val = item.value().toString();
     if(val == "supergauss"){
@@ -158,7 +160,7 @@ void updateShapeT(const TreeItem& item,ParamTreeModel* model)
     }
 }
 
-void loadSuperGaussT(ParamTreeModel* model)
+void loadSuperGaussT(TreeModel* model)
 {
     QSettings settings;
     TreeItem superGaussM("m",model->readFromSettings(settings,INPUT_T_SUPERGAUSSM_KEY).toInt());
@@ -168,7 +170,7 @@ void loadSuperGaussT(ParamTreeModel* model)
 }
 
 //QSettings settings("PTW software","ParamTreeWidgetTest");
-void updateCD(const TreeItem& item,ParamTreeModel* model)
+void updateCD(const TreeItem& item,TreeModel* model)
 {
     QString cd_str = item.value().toString();
     if(cd_str == "T"){
@@ -188,7 +190,7 @@ void updateCD(const TreeItem& item,ParamTreeModel* model)
     }
 }
 
-void loadInputT(ParamTreeModel* model)
+void loadInputT(TreeModel* model)
 {
     QSettings settings;
     QVariant pw_var(model->readFromSettings(settings,QStringList() << INPUT_T_KEY << "Pulse Width"));
@@ -210,7 +212,7 @@ void loadInputT(ParamTreeModel* model)
 }
 
 
-void loadInputR(ParamTreeModel* model){
+void loadInputR(TreeModel* model){
 
     QSettings settings;
     QVariant bw_var(model->readFromSettings(settings,QStringList() << INPUT_R_KEY << "Beam Width"));

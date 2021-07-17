@@ -1,17 +1,38 @@
-#ifndef SCIENTIFICLINEEDIT_H
-#define SCIENTIFICLINEEDIT_H
+#ifndef TREESCILINEEDIT_H
+#define TREESCILINEEDIT_H
 
 #include <QLineEdit>
 #include <QString>
+#include <QModelIndex>
+#include "modelview/treemodel.h"
+#include "modelview/treeitem.h"
+#include "shared/scientificlineedit.h"
 
-class ScientificLineEdit : public QLineEdit
+class QWidget;
+
+namespace paramtree{
+
+class TreeSciLineEdit : public ScientificLineEdit
 {
+    Q_OBJECT
+
 public:
-    ScientificLineEdit(QWidget* parent = nullptr);
-    void setValue(double value);
-    double value() const;
+
+    TreeSciLineEdit(TreeModel* model,const TreeItem& item,QWidget* parent=nullptr);
+    QString name() const;
+
+private slots:
+    void setEditorData(const QModelIndex& topLeft,const QModelIndex& bottomRight);
+
+private:
+    QString m_name;
+    TreeModel* m_model;
+    QModelIndex m_index;
 };
 
-QString formatNumericString(const QString& str);
+}
+
+
+
 
 #endif // SCIENTIFICLINEEDIT_H

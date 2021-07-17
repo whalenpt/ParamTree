@@ -1,9 +1,11 @@
-#include "paramtreeview.h"
-#include "paramtreemodel.h"
-#include "paramitemdelegate.h"
+#include "modelview/treeview.h"
+#include "modelview/treemodel.h"
+#include "modelview/itemdelegate.h"
 #include <QAction>
 
-ParamTreeView::ParamTreeView(ParamTreeModel* model,QWidget* parent) :
+namespace paramtree{
+
+TreeView::TreeView(TreeModel* model,QWidget* parent) :
     QTreeView(parent),
     m_model(model)
 {
@@ -20,6 +22,10 @@ ParamTreeView::ParamTreeView(ParamTreeModel* model,QWidget* parent) :
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    m_delegate = new ParamItemDelegate(this);
+    m_delegate = new ItemDelegate(this);
     setItemDelegateForColumn(1,m_delegate);
 }
+
+}
+
+

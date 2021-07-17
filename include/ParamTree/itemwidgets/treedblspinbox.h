@@ -1,19 +1,20 @@
-#ifndef PARAMDOUBLESPINBOX_H
-#define PARAMDOUBLESPINBOX_H
+#ifndef TREEDBLSPINBOX_H
+#define TREEDBLSPINBOX_H
 
 #include <QWidget>
 #include <QDoubleSpinBox>
 #include <QModelIndex>
 
-class ParamTreeModel;
+namespace paramtree {
+class TreeModel;
 class TreeItem;
 
-class ParamDoubleSpinBox : public QDoubleSpinBox
+class TreeDblSpinBox : public QDoubleSpinBox
 {
     Q_OBJECT
 
 public:
-    ParamDoubleSpinBox(ParamTreeModel* model,const TreeItem& item,QWidget* parent=nullptr);
+    TreeDblSpinBox(TreeModel* model,const TreeItem& item,QWidget* parent=nullptr);
     QString name() const;
 
 private slots:
@@ -21,8 +22,10 @@ private slots:
 
 private:
     QString m_name;
-    ParamTreeModel* m_model;
+    TreeModel* m_model;
     QModelIndex m_index;
 };
+
+}
 
 #endif // PARAMDOUBLESPINBOX_H

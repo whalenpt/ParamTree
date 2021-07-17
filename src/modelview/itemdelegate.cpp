@@ -1,7 +1,7 @@
-#include "paramitemdelegate.h"
-#include "paramtreeitem.h"
-#include "scientificlineedit.h"
-#include "widgetinitializers.h"
+#include "modelview/itemdelegate.h"
+#include "modelview/treeitem.h"
+#include "shared/scientificlineedit.h"
+#include "shared/widgetinitializer.h"
 #include <stdexcept>
 #include <QComboBox>
 #include <QSpinBox>
@@ -11,12 +11,14 @@
 #include <QApplication>
 #include <QDebug>
 
-ParamItemDelegate::ParamItemDelegate(QWidget* parent) :
+namespace paramtree{
+
+ItemDelegate::ItemDelegate(QWidget* parent) :
     QStyledItemDelegate(parent)
 {
 }
 
-QWidget* ParamItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+QWidget* ItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                       const QModelIndex &index) const
 {
     const TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
@@ -25,7 +27,7 @@ QWidget* ParamItemDelegate::createEditor(QWidget *parent, const QStyleOptionView
         if(item->hasAux("RANGE")){
             QVariant rangevar = item->aux("RANGE");
             if(!rangevar.canConvert<QStringList>())
-                throw std::runtime_error("ParamItemDelegate::createEditor error.");
+                throw std::runtime_error("ItemDelegate::createEditor error.");
             range = rangevar.toStringList();
         }
         combo_box = new QComboBox(parent);
@@ -49,13 +51,13 @@ QWidget* ParamItemDelegate::createEditor(QWidget *parent, const QStyleOptionView
         QMetaType var_type = item->value().metaType();
         if(var_type.id() == QMetaType::Int){
             QSpinBox* editor = new QSpinBox(parent);
-            ParamWidgetInitializer::initializeSpinBox(editor,index);
+            widgetinitializer::initializeSpinBox(editor,index);
             return editor;
         } else if(var_type.id() == QMetaType::QString){
             return new QLineEdit(parent);
         } else if(var_type.id() == QMetaType::Double) {
             QDoubleSpinBox* editor = new QDoubleSpinBox(parent);
-            ParamWidgetInitializer::initializeSpinBox(editor,index);
+            widgetinitializer::initializeSpinBox(editor,index);
             return editor;
         } else {
             return QStyledItemDelegate::createEditor(parent,option,index);
@@ -64,13 +66,13 @@ QWidget* ParamItemDelegate::createEditor(QWidget *parent, const QStyleOptionView
     return QStyledItemDelegate::createEditor(parent,option,index);
 }
 
-void ParamItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
            const QModelIndex &index) const
 {
     QStyledItemDelegate::paint(painter,option,index);
 }
 
-void ParamItemDelegate::setEditorData(QWidget* editor,const QModelIndex& index) const
+void ItemDelegate::setEditorData(QWidget* editor,const QModelIndex& index) const
 {
     const TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
     if(item->dtype() == TreeItem::DataType::COMBO){
@@ -106,7 +108,7 @@ void ParamItemDelegate::setEditorData(QWidget* editor,const QModelIndex& index) 
     QStyledItemDelegate::setEditorData(editor,index);
 }
 
-void ParamItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+void ItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                   const QModelIndex &index) const
 {
     TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
@@ -138,20 +140,22 @@ void ParamItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     QStyledItemDelegate::setModelData(editor,model,index);
 }
 
-void ParamItemDelegate::updateEditorGeometry(QWidget* editor,const QStyleOptionViewItem& option,
+void ItemDelegate::updateEditorGeometry(QWidget* editor,const QStyleOptionViewItem& option,
                           const QModelIndex& index) const
 {
     QStyledItemDelegate::updateEditorGeometry(editor,option,index);
 }
 
-void ParamItemDelegate::setComboData(int /*val*/)
+void ItemDelegate::setComboData(int /*val*/)
 {
     emit commitData(combo_box);
 }
 
-void ParamItemDelegate::setBoolData(int /*val*/)
+void ItemDelegate::setBoolData(int /*val*/)
 {
     emit commitData(m_bool_box);
+}
+
 }
 
 

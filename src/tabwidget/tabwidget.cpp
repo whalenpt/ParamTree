@@ -1,9 +1,12 @@
-#include "tabwidget.h"
-#include "tabpage.h"
+#include "tabwidget/tabwidget.h"
+#include "tabwidget/tabpage.h"
+
 #include <QTabWidget>
 #include <QWidget>
 #include <QLabel>
 #include <QDebug>
+
+namespace paramtree{
 
 StackedLayout::StackedLayout() : QStackedLayout()
 {
@@ -135,6 +138,8 @@ TabPage* TabWidget::currentPage() const
 TabPage* TabWidget::tabPage(const QStringList& key) const
 {
     return m_stacked_widget->tabPage(key);
+}
+
 }
 
 

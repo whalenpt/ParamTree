@@ -1,20 +1,22 @@
-#ifndef PARAMGROUPWIDGET_H
-#define PARAMGROUPWIDGET_H
+#ifndef TREEWIDGET_H
+#define TREEWIDGET_H
 
-#include "ParamTree_global.h"
-#include "auxsmallclass.h"
+#include "ParamTree/ParamTree_global.h"
+#include "ParamTree/shared/auxsmallclass.h"
+#include "ParamTree/groupwidget/treegroupbox.h"
+#include "ParamTree/modelview/treemodel.h"
 #include <QWidget>
 
-class ParamTreeModel;
 class QVBoxLayout;
-class GroupBoxWidget;
 
-class PARAMTREE_EXPORT ParamGroupWidget : public QWidget
+namespace paramtree{
+
+class PARAMTREE_EXPORT TreeWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit ParamGroupWidget(ParamTreeModel* model,const QStringList& key = QStringList(),
+    explicit TreeWidget(TreeModel* model,const QStringList& key = QStringList(),
                              Depth depth = Depth::COMPLETE,
                              QWidget* parent = nullptr);
     void setTitle(const QString& str);
@@ -26,11 +28,13 @@ public slots:
     void insertWidgets(const QModelIndex& parent,int start,int end);
 
 private:
-    ParamTreeModel* m_model;
+    TreeModel* m_model;
     QStringList m_key;
     Depth m_depth;
     QVBoxLayout* m_layout;
-    GroupBoxWidget* m_group_widget;
+    TreeGroupBox* m_group_widget;
 };
+
+}
 
 #endif // PARAMGROUPWIDGET_H

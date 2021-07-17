@@ -1,41 +1,46 @@
-#include "generatewidgets.h"
-#include "itemwidget.h"
-#include "paramtreemodel.h"
-#include "paramtreeitem.h"
-#include "paramcombobox.h"
-#include "paramscientificlineedit.h"
-#include "paramspinbox.h"
-#include "paramlineedit.h"
-#include "paramdoublespinbox.h"
-#include "paramcheckbox.h"
+#include "modelview/treemodel.h"
+#include "modelview/treeitem.h"
+#include "itemwidgets/itemwidget.h"
+#include "itemwidgets/generatewidgets.h"
+#include "itemwidgets/treecombobox.h"
+#include "itemwidgets/treescilineedit.h"
+#include "itemwidgets/treespinbox.h"
+#include "itemwidgets/treelineedit.h"
+#include "itemwidgets/treedblspinbox.h"
+#include "itemwidgets/treecheckbox.h"
 
-QWidget* generateParamWidget(ParamTreeModel* model,const TreeItem& item)
+namespace paramtree{
+
+QWidget* generateParamWidget(TreeModel* model,const TreeItem& item)
 {
     QWidget* widget;
     if(item.dtype() == TreeItem::DataType::COMBO)
-        widget = new ParamComboBox(model,item);
+        widget = new TreeComboBox(model,item);
     else if(item.dtype() == TreeItem::DataType::BOOL)
-        widget = new ParamCheckBox(model,item);
+        widget = new TreeCheckBox(model,item);
     else if(item.dtype() == TreeItem::DataType::SCIENTIFIC)
-        widget = new ParamScientificLineEdit(model,item);
+        widget = new TreeSciLineEdit(model,item);
     else if(item.dtype() == TreeItem::DataType::VAR){
         QMetaType var_type = item.value().metaType();
         if(var_type.id() == QMetaType::Int)
-            widget = new ParamSpinBox(model,item);
+            widget = new TreeSpinBox(model,item);
         else if(var_type.id() == QMetaType::QString)
-            widget = new ParamLineEdit(model,item);
+            widget = new TreeLineEdit(model,item);
         else if(var_type.id() == QMetaType::Double)
-            widget = new ParamDoubleSpinBox(model,item);
+            widget = new TreeDblSpinBox(model,item);
         else if(var_type.id() == QMetaType::LongLong)
-            widget = new ParamSpinBox(model,item);
+            widget = new TreeSpinBox(model,item);
         else
-            widget = new ParamLineEdit(model,item);
+            widget = new TreeLineEdit(model,item);
     } else
-        widget = new ParamLineEdit(model,item);
+        widget = new TreeLineEdit(model,item);
     return widget;
 }
 
-ItemWidget* generateItemWidget(ParamTreeModel* model,const TreeItem& item)
+ItemWidget* generateItemWidget(TreeModel* model,const TreeItem& item)
 {
     return new ItemWidget(item,generateParamWidget(model,item));
 }
+
+}
+

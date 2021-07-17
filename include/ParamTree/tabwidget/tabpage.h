@@ -5,12 +5,15 @@
 #include <QHash>
 #include <QString>
 #include <QStringList>
-#include "itemwidget.h"
+#include "ParamTree/itemwidgets/itemwidget.h"
+#include "ParamTree/modelview/treemodel.h"
+#include "ParamTree/modelview/treeitem.h"
 
 class QVBoxLayout;
-class ParamTreeModel;
-class TreeItem;
 class QLayout;
+
+namespace paramtree{
+
 class TabWidget;
 
 class TabPage : public QWidget
@@ -18,7 +21,7 @@ class TabPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit TabPage(ParamTreeModel* model,const QStringList& key,
+    explicit TabPage(TreeModel* model,const QStringList& key,
                               TabWidget *parent = nullptr);
     int leafCount() const;
     int tabCount() const;
@@ -30,7 +33,7 @@ public:
     const QStringList& key() {return m_key;}
 
 private:
-    ParamTreeModel* m_model;
+    TreeModel* m_model;
     QStringList m_key;
     TabWidget* m_tab_widget;
     TabWidget* m_parent_tabwidget;
@@ -43,6 +46,8 @@ private:
     void addItem(const TreeItem& item);
     void removeItem(const TreeItem& item);
 };
+
+}
 
 
 

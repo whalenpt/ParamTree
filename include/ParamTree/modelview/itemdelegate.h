@@ -1,15 +1,17 @@
-#ifndef PARAMITEMDELEGATE_H
-#define PARAMITEMDELEGATE_H
+#ifndef ITEMDELEGATE_H
+#define ITEMDELEGATE_H
 
 #include <QStyledItemDelegate>
 #include <QComboBox>
 
-class ParamItemDelegate : public QStyledItemDelegate
+namespace paramtree{
+
+class ItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
 public:
-    ParamItemDelegate(QWidget* parent = nullptr);
+    ItemDelegate(QWidget* parent = nullptr);
     QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const override;
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -27,5 +29,7 @@ private slots:
     void setComboData(int val);
     void setBoolData(int val);
 };
+
+}
 
 #endif // PARAMITEMDELEGATE_H

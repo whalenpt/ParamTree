@@ -1,13 +1,13 @@
-#include "paramtabwidget.h"
-
-#include "paramtabwidget.h"
-#include "paramtreemodel.h"
-#include "tabpage.h"
+#include "tabwidget/treetabwidget.h"
+#include "tabwidget/tabpage.h"
+#include "modelview/treemodel.h"
 #include <QVBoxLayout>
 #include <QStringList>
 #include <QDebug>
 
-ParamTabWidget::ParamTabWidget(ParamTreeModel* model,const QStringList& key,QWidget* parent) :
+namespace paramtree{
+
+TreeTabWidget::TreeTabWidget(TreeModel* model,const QStringList& key,QWidget* parent) :
     QWidget(parent),
     m_model(model),
     m_key(key),
@@ -20,18 +20,18 @@ ParamTabWidget::ParamTabWidget(ParamTreeModel* model,const QStringList& key,QWid
     m_layout->addItem(vspacer);
 
     connect(m_model,&QAbstractItemModel::modelReset,this,
-            &ParamTabWidget::reloadWidgets);
+            &TreeTabWidget::reloadWidgets);
 
     connect(m_model,&QAbstractItemModel::rowsAboutToBeRemoved,this,
-            &ParamTabWidget::removeWidgets);
+            &TreeTabWidget::removeWidgets);
 
     connect(m_model,&QAbstractItemModel::rowsInserted,this,
-            &ParamTabWidget::insertWidgets);
+            &TreeTabWidget::insertWidgets);
 
     setLayout(m_layout);
 }
 
-void ParamTabWidget::removeWidgets(const QModelIndex& parent,int first,int last)
+void TreeTabWidget::removeWidgets(const QModelIndex& parent,int first,int last)
 {
   // If the first index is greater than or equal to the last then removeRows
   // of the QAbstractItemModel was called with a count of 0.
@@ -45,7 +45,7 @@ void ParamTabWidget::removeWidgets(const QModelIndex& parent,int first,int last)
     }
 }
 
-void ParamTabWidget::insertWidgets(const QModelIndex& parent,int start,int end)
+void TreeTabWidget::insertWidgets(const QModelIndex& parent,int start,int end)
 {
     if(start > end)
         return;
@@ -57,7 +57,7 @@ void ParamTabWidget::insertWidgets(const QModelIndex& parent,int start,int end)
     }
 }
 
-void ParamTabWidget::reloadWidgets()
+void TreeTabWidget::reloadWidgets()
 {
     if(m_tab_page != nullptr){
         m_layout->removeWidget(m_tab_page);
@@ -68,6 +68,8 @@ void ParamTabWidget::reloadWidgets()
         m_tab_page = new TabPage(m_model,m_key);
         m_layout->addWidget(m_tab_page);
     }
+}
+
 }
 
 

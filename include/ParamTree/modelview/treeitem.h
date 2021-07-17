@@ -1,7 +1,7 @@
 #ifndef PARAMTREEITEM_H
 #define PARAMTREEITEM_H
 
-#include "ParamTree_global.h"
+#include "ParamTree/ParamTree_global.h"
 #include <exception>
 #include <QVariant>
 #include <QMap>
@@ -9,16 +9,15 @@
 #include <QModelIndex>
 
 
+
+namespace paramtree{
+
 class TreeKeyException : public std::invalid_argument
 {
 public:
     explicit TreeKeyException(const QString& key) : std::invalid_argument(\
-            QString("The key " + key + " was not found in the TreeItem.").toStdString()),
-            m_key(key) {}
-private:
-    QString m_key;
+            QString("The key " + key + " was not found in the TreeItem.").toStdString()) {}
 };
-
 
 using AuxMap = QMap<QString,QVariant>;
 
@@ -31,7 +30,7 @@ public:
                       const AuxMap& aux_map = AuxMap());
     explicit TreeItem(const TreeItem& item);
     ~TreeItem();
-    friend class ParamTreeModel;
+    friend class TreeModel;
 
     unsigned int childCount() const;
     unsigned int childNumber() const;
@@ -79,8 +78,6 @@ private:
 };
 
 
+}
 
-
-
-
-#endif // PARAMTREEITEM_H
+#endif // TREEITEM_H

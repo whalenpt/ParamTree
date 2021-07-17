@@ -1,20 +1,23 @@
-#ifndef PARAMTREEVIEW_H
-#define PARAMTREEVIEW_H
+#ifndef TREEVIEW_H
+#define TREEVIEW_H
 
-#include "ParamTree_global.h"
+#include "ParamTree/ParamTree_global.h"
+#include "ParamTree/modelview/itemdelegate.h"
+#include "ParamTree/modelview/treemodel.h"
 #include <QTreeView>
 
-class ParamTreeModel;
-class ParamItemDelegate;
+namespace paramtree{
 
-class PARAMTREE_EXPORT ParamTreeView : public QTreeView
+class PARAMTREE_EXPORT TreeView : public QTreeView
 {
 public:
-    ParamTreeView(ParamTreeModel* model,QWidget* parent = nullptr);
+    TreeView(TreeModel* model,QWidget* parent = nullptr);
 
 private:
-    ParamTreeModel* m_model;
-    ParamItemDelegate* m_delegate;
+    TreeModel* m_model;
+    ItemDelegate* m_delegate;
 };
+
+}
 
 #endif // PARAMTREEVIEW_H

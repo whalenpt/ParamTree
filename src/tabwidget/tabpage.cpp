@@ -1,9 +1,9 @@
-#include "tabpage.h"
-#include "paramtreemodel.h"
-#include "paramtreeitem.h"
-#include "itemwidget.h"
-#include "generatewidgets.h"
-#include "tabwidget.h"
+#include "tabwidget/tabpage.h"
+#include "tabwidget/tabwidget.h"
+#include "modelview/treemodel.h"
+#include "modelview/treeitem.h"
+#include "itemwidgets/itemwidget.h"
+#include "itemwidgets/generatewidgets.h"
 
 #include <QString>
 #include <QVBoxLayout>
@@ -15,7 +15,9 @@
 #include <QStringList>
 #include <QDebug>
 
-TabPage::TabPage(ParamTreeModel* model,const QStringList& key,
+namespace paramtree{
+
+TabPage::TabPage(TreeModel* model,const QStringList& key,
                  TabWidget *parent_tabwidget) :
     QWidget(parent_tabwidget),
     m_model(model),
@@ -56,7 +58,7 @@ void TabPage::addItem(const QModelIndex& index)
     if(!index.isValid())
         return;
     const TreeItem& item = m_model->getItem(index);
-    QStringList key = m_model->data(index,ParamTreeModel::Role::KEY).toStringList();
+    QStringList key = m_model->data(index,TreeModel::Role::KEY).toStringList();
 
     if(item.isBranch()) {
         TabPage* tab_page = new TabPage(m_model,key);
@@ -77,7 +79,7 @@ void TabPage::removeItem(const QModelIndex& index)
 {
     if(!index.isValid())
         return;
-    QStringList key = m_model->data(index,ParamTreeModel::Role::KEY).toStringList();
+    QStringList key = m_model->data(index,TreeModel::Role::KEY).toStringList();
     if(m_leafs.contains(key)){
         ItemWidget* widget = m_leafs.take(key);
         m_leaf_layout->removeWidget(widget);
@@ -97,7 +99,7 @@ void TabPage::removeItem(const QModelIndex& index)
 TabPage* TabPage::tabPage(const QModelIndex& index)
 {
     // Find key of the corresponding index in the model and use this to find the tabPage
-    QStringList key = m_model->data(index,ParamTreeModel::Role::KEY).toStringList();
+    QStringList key = m_model->data(index,TreeModel::Role::KEY).toStringList();
     return tabPage(key);
 }
 
@@ -121,6 +123,8 @@ TabPage* TabPage::tabPage(const QStringList& key)
 
 //    // returns nullptr if TabWidget cannot find key.
     return m_tab_widget->tabPage(key);
+}
+
 }
 
 

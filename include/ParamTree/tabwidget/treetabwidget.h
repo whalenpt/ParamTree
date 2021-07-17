@@ -1,18 +1,21 @@
-#ifndef PARAMTABWIDGET_H
-#define PARAMTABWIDGET_H
+#ifndef TREETABWIDGET_H
+#define TREETABWIDGET_H
 
 #include <QWidget>
-#include "ParamTree_global.h"
-#include "tabpage.h"
-class ParamTreeModel;
+#include "ParamTree/ParamTree_global.h"
+#include "ParamTree/tabwidget/tabpage.h"
+#include "ParamTree/modelview/treemodel.h"
+
 class QVBoxLayout;
 
-class PARAMTREE_EXPORT ParamTabWidget : public QWidget
+namespace paramtree{
+
+class PARAMTREE_EXPORT TreeTabWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit ParamTabWidget(ParamTreeModel* model,const QStringList& key = QStringList(),
+    explicit TreeTabWidget(TreeModel* model,const QStringList& key = QStringList(),
                              QWidget* parent = nullptr);
 
 public slots:
@@ -21,10 +24,12 @@ public slots:
     void insertWidgets(const QModelIndex& parent,int start,int end);
 
 private:
-    ParamTreeModel* m_model;
+    TreeModel* m_model;
     QStringList m_key;
     QVBoxLayout* m_layout;
     TabPage* m_tab_page;
 };
 
-#endif // ParamTabWidget_H
+}
+
+#endif // TreeTabWidget_H

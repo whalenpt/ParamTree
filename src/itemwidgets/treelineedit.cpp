@@ -1,8 +1,10 @@
-#include "paramlineedit.h"
-#include "paramtreemodel.h"
+#include "itemwidgets/treelineedit.h"
+#include "modelview/treemodel.h"
 #include <QAbstractItemModel>
 
-ParamLineEdit::ParamLineEdit(ParamTreeModel* model,const TreeItem& item,QWidget* parent) :
+namespace paramtree{
+
+TreeLineEdit::TreeLineEdit(TreeModel* model,const TreeItem& item,QWidget* parent) :
     QLineEdit(parent),
     m_name(item.name()),
     m_model(model),
@@ -13,10 +15,10 @@ ParamLineEdit::ParamLineEdit(ParamTreeModel* model,const TreeItem& item,QWidget*
         m_model->setData(m_index,text,Qt::EditRole);
     });
 
-    connect(m_model,&QAbstractItemModel::dataChanged,this,&ParamLineEdit::setEditorData);
+    connect(m_model,&QAbstractItemModel::dataChanged,this,&TreeLineEdit::setEditorData);
 }
 
-void ParamLineEdit::setEditorData(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
+void TreeLineEdit::setEditorData(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
 {
     if(m_index == topLeft){
         QString text = m_index.data(Qt::DisplayRole).toString();
@@ -24,13 +26,15 @@ void ParamLineEdit::setEditorData(const QModelIndex& topLeft,const QModelIndex& 
     }
 }
 
-QString ParamLineEdit::name() const
+QString TreeLineEdit::name() const
 {
     return m_name;
 }
 
-QString ParamLineEdit::value() const
+QString TreeLineEdit::value() const
 {
     return QLineEdit::text();
+}
+
 }
 

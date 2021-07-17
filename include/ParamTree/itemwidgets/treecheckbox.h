@@ -1,16 +1,18 @@
-#ifndef PARAMCHECKBOX_H
-#define PARAMCHECKBOX_H
+#ifndef TREECHECKBOX_H
+#define TREECHECKBOX_H
 
 #include <QCheckBox>
 #include <QModelIndex>
-class ParamTreeModel;
-class TreeItem;
 class QString;
 
-class ParamCheckBox : public QCheckBox
+namespace paramtree{
+class TreeModel;
+class TreeItem;
+
+class TreeCheckBox : public QCheckBox
 {
 public:
-    ParamCheckBox(ParamTreeModel* model,const TreeItem& item,QWidget* parent = nullptr);
+    TreeCheckBox(TreeModel* model,const TreeItem& item,QWidget* parent = nullptr);
     QString name() const;
 
 public slots:
@@ -21,8 +23,10 @@ private slots:
 
 private:
     QString m_name;
-    ParamTreeModel* m_model;
+    TreeModel* m_model;
     QModelIndex m_index;
 };
 
-#endif // PARAMCHECKBOX_H
+}
+
+#endif // CHECKBOX_H

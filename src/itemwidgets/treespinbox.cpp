@@ -1,24 +1,26 @@
-#include "paramspinbox.h"
-#include "paramtreemodel.h"
-#include "paramtreeitem.h"
-#include "widgetinitializers.h"
+#include "modelview/treemodel.h"
+#include "modelview/treeitem.h"
+#include "itemwidgets/treespinbox.h"
+#include "shared/widgetinitializer.h"
 #include <QAbstractItemModel>
 #include <QDebug>
 
-ParamSpinBox::ParamSpinBox(ParamTreeModel* model,const TreeItem& item,QWidget* parent) :
+namespace paramtree{
+
+TreeSpinBox::TreeSpinBox(TreeModel* model,const TreeItem& item,QWidget* parent) :
     QSpinBox(parent),
     m_name(item.name()),
     m_model(model),
     m_index(model->getValIndex(item))
 {
-    ParamWidgetInitializer::initializeSpinBox(this,m_index);
+    widgetinitializer::initializeSpinBox(this,m_index);
     connect(this,QOverload<int>::of(&QSpinBox::valueChanged), [=](int val) {
         m_model->setData(m_index,val,Qt::EditRole);
     });
-    connect(m_model,&QAbstractItemModel::dataChanged,this,&ParamSpinBox::setEditorData);
+    connect(m_model,&QAbstractItemModel::dataChanged,this,&TreeSpinBox::setEditorData);
 }
 
-void ParamSpinBox::setEditorData(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
+void TreeSpinBox::setEditorData(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
 {
     if(m_index == topLeft){
         int value = m_index.data(Qt::DisplayRole).toInt();
@@ -26,9 +28,11 @@ void ParamSpinBox::setEditorData(const QModelIndex& topLeft,const QModelIndex& /
     }
 }
 
-QString ParamSpinBox::name() const
+QString TreeSpinBox::name() const
 {
     return m_name;
+}
+
 }
 
 

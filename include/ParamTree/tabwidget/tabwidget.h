@@ -9,6 +9,8 @@
 #include <QFrame>
 #include <QStringList>
 
+namespace paramtree{
+
 class TabPage;
 
 class StackedLayout : public QStackedLayout
@@ -55,7 +57,6 @@ public:
     void removeTab(const QStringList& key);
     bool contains(const QStringList& key) const;
     int count() const;
-//    TabPage* page(int index) const;
     TabPage* tabPage(const QStringList& key) const;
     TabPage* currentPage() const;
 
@@ -67,5 +68,7 @@ private:
     StackedWidget* m_stacked_widget;
     QTabBar* m_tab_bar;
 };
+
+}
 
 #endif // TabWidget_H

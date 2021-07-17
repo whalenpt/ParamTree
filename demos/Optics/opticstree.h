@@ -5,20 +5,24 @@
 #include <string>
 #include <QVariant>
 
-class ParamTreeModel;
-class TreeItem;
 
+namespace paramtree{
+    class TreeModel;
+    class TreeItem;
+}
 
 namespace optics{
 
-    void generateTree(ParamTreeModel* model);
-    void updateCD(const TreeItem& item,ParamTreeModel* model);
-    void updatePlasma(const TreeItem& item,ParamTreeModel* model);
-    void updateShapeT(const TreeItem& item,ParamTreeModel* model);
-    void loadInputR(ParamTreeModel* model);
-    void loadInputT(ParamTreeModel* model);
-    void loadPlasma(ParamTreeModel* model);
-    void loadSuperGaussT(ParamTreeModel* model);
+    using namespace paramtree;
+
+    void generateTree(TreeModel* model);
+    void updateCD(const TreeItem& item,TreeModel* model);
+    void updatePlasma(const TreeItem& item,TreeModel* model);
+    void updateShapeT(const TreeItem& item,TreeModel* model);
+    void loadInputR(TreeModel* model);
+    void loadInputT(TreeModel* model);
+    void loadPlasma(TreeModel* model);
+    void loadSuperGaussT(TreeModel* model);
 }
 
 namespace optics{

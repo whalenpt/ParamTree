@@ -1,23 +1,24 @@
-#include "paramcombobox.h"
-#include "paramtreemodel.h"
-#include <QDebug>
+#include "itemwidgets/treecombobox.h"
+#include "modelview/treemodel.h"
 
-ParamComboBox::ParamComboBox(ParamTreeModel* model,const TreeItem& item,QWidget* parent) :
+namespace paramtree{
+
+TreeComboBox::TreeComboBox(TreeModel* model,const TreeItem& item,QWidget* parent) :
     QComboBox(parent),
     m_name(item.name()),
     m_model(model),
     m_index(model->getValIndex(item))
 {
-    QComboBox::addItems(m_model->data(m_index,ParamTreeModel::Role::RANGE).toStringList());
+    QComboBox::addItems(m_model->data(m_index,TreeModel::Role::RANGE).toStringList());
     QComboBox::setCurrentText(m_model->data(m_index,Qt::DisplayRole).toString());
 
     connect(this,QOverload<const QString&>::of(&QComboBox::currentTextChanged),
             [=] (const QString& text) { m_model->setData(m_index,text,Qt::EditRole);} );
 
-    connect(m_model,&QAbstractItemModel::dataChanged,this,&ParamComboBox::setEditorData);
+    connect(m_model,&QAbstractItemModel::dataChanged,this,&TreeComboBox::setEditorData);
 }
 
-void ParamComboBox::setEditorData(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
+void TreeComboBox::setEditorData(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
 {
     if(m_index == topLeft){
         QString text = m_index.data(Qt::DisplayRole).toString();
@@ -25,7 +26,11 @@ void ParamComboBox::setEditorData(const QModelIndex& topLeft,const QModelIndex& 
     }
 }
 
-QString ParamComboBox::name() const
+QString TreeComboBox::name() const
 {
     return m_name;
 }
+
+
+}
+

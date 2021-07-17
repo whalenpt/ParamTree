@@ -1,8 +1,8 @@
-#ifndef PARAMTREEMODEL_H
-#define PARAMTREEMODEL_H
+#ifndef TREEMODEL_H
+#define TREEMODEL_H
 
-#include "ParamTree_global.h"
-#include "paramtreeitem.h"
+#include "ParamTree/ParamTree_global.h"
+#include "ParamTree/modelview/treeitem.h"
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QVariant>
@@ -10,20 +10,22 @@
 #include <QXmlStreamReader>
 #include <QSettings>
 
+namespace paramtree{
+
 //const QString ROOT_NAME = "Tree";
 void writeNode(QXmlStreamWriter& writer,const TreeItem& item);
 void writeAuxMap(QXmlStreamWriter& writer,const QMap<QString,QVariant>& map);
 TreeItem* readNode(QXmlStreamReader& reader);
 void readAuxMap(QXmlStreamReader& reader,TreeItem* item);
 
-class PARAMTREE_EXPORT ParamTreeModel : public QAbstractItemModel
+class PARAMTREE_EXPORT TreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
     enum Role {KEY = Qt::UserRole+1,STRINGKEY,RANGE,DATATYPE,AUXMAP};
-    explicit ParamTreeModel(QObject *parent = nullptr);
-    ~ParamTreeModel() override;
+    explicit TreeModel(QObject *parent = nullptr);
+    ~TreeModel() override;
 
     // Header:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -91,6 +93,8 @@ private:
     void writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item);
     void readTreeItems(QXmlStreamReader& reader,TreeItem* item);
 };
+
+}
 
 
 #endif // PARAMTREEMODEL_H

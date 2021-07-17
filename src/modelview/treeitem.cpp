@@ -1,8 +1,10 @@
-#include "paramtreeitem.h"
-#include "paramtreemodel.h"
+#include "modelview/treeitem.h"
+#include "modelview/treemodel.h"
 #include <QVariant>
 #include <QDebug>
 #include <stdexcept>
+
+namespace paramtree{
 
 TreeItem::TreeItem(const QString& name,const QVariant& val,DataType dt,
                    const AuxMap& aux_map) :
@@ -248,6 +250,8 @@ bool TreeItem::hasAux(const QString& aux_key) const
 const AuxMap& TreeItem::auxMap() const
 {
     return m_aux_map;
+}
+
 }
 
 

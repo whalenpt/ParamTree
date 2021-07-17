@@ -1,14 +1,16 @@
-#include "itemwidget.h"
-#include "paramtreeitem.h"
-#include "paramtreemodel.h"
+#include "itemwidgets/itemwidget.h"
+#include "modelview/treeitem.h"
+#include "modelview/treemodel.h"
 #include <QHBoxLayout>
 #include <QLabel>
+
+
+namespace paramtree{
 
 const int MIN_WIDGET_WIDTH = 40;
 //const int MAX_WIDGET_WIDTH = 240;
 const int MIN_LABEL_WIDTH = 30;
 const int WIDGET_HEIGHT = 20;
-
 const int LABEL_WIDGET_SPACING = 100;
 
 ItemWidget::ItemWidget(const TreeItem& item,QWidget* widget) :
@@ -29,6 +31,8 @@ ItemWidget::ItemWidget(const TreeItem& item,QWidget* widget) :
     hbox->addSpacing(LABEL_WIDGET_SPACING);
     hbox->addWidget(widget);
     setLayout(hbox);
+}
+
 }
 
 

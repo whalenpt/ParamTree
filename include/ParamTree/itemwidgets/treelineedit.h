@@ -1,19 +1,22 @@
-#ifndef PARAMLINEEDIT_H
-#define PARAMLINEEDIT_H
+#ifndef TREELINEEDIT_H
+#define TREELINEEDIT_H
 
 #include <QObject>
 #include <QLineEdit>
 #include <QModelIndex>
 
-class ParamTreeModel;
+
+namespace paramtree{
+
+class TreeModel;
 class TreeItem;
 
-class ParamLineEdit : public QLineEdit
+class TreeLineEdit : public QLineEdit
 {
     Q_OBJECT
 
 public:
-    ParamLineEdit(ParamTreeModel* model,const TreeItem& item,QWidget* parent=nullptr);
+    TreeLineEdit(TreeModel* model,const TreeItem& item,QWidget* parent=nullptr);
     QString name() const;
     QString value() const;
 
@@ -22,8 +25,10 @@ private slots:
 
 private:
     QString m_name;
-    ParamTreeModel* m_model;
+    TreeModel* m_model;
     QModelIndex m_index;
 };
+
+}
 
 #endif // PARAMLINEEDIT_H

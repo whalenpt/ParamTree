@@ -1,5 +1,6 @@
-#include "widgetinitializers.h"
-#include "paramtreemodel.h"
+
+#include "shared/widgetinitializer.h"
+#include "modelview/treemodel.h"
 #include <QVariant>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
@@ -10,12 +11,14 @@
 #include <algorithm>
 #include <limits>
 
-namespace ParamWidgetInitializer{
+namespace paramtree{
+
+namespace widgetinitializer{
 
     void initializeSpinBox(QSpinBox* widget,const QModelIndex& index)
     {
         int start_val = index.data(Qt::DisplayRole).toInt();
-        const AuxMap& aux_map = index.data(ParamTreeModel::Role::AUXMAP).toMap();
+        const AuxMap& aux_map = index.data(TreeModel::Role::AUXMAP).toMap();
         if(aux_map.contains("RANGE")){
             QVariant range = aux_map.value("RANGE");
             if(range.canConvert<QVector<QVariant>>()){
@@ -35,7 +38,7 @@ namespace ParamWidgetInitializer{
     void initializeSpinBox(QDoubleSpinBox* widget,const QModelIndex& index)
     {
         double start_val = index.data(Qt::DisplayRole).toDouble();
-        const AuxMap& aux_map = index.data(ParamTreeModel::Role::AUXMAP).toMap();
+        const AuxMap& aux_map = index.data(TreeModel::Role::AUXMAP).toMap();
         if(aux_map.contains("RANGE")){
             QVariant range = aux_map.value("RANGE");
             if(range.canConvert<QVector<QVariant>>()){
@@ -58,4 +61,6 @@ namespace ParamWidgetInitializer{
     //    double start_val = index.data(Qt::DisplayRole).toDouble();
     //    widget->setValue(start_val);
     //}
+}
+
 }

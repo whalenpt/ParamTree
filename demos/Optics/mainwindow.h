@@ -4,8 +4,8 @@
 #include <QMainWindow>
 #include <QCloseEvent>
 #include <QVBoxLayout>
-#include <ParamTree/paramtreemodel.h>
-#include <ParamTree/paramtreeview.h>
+#include <ParamTree/TreeModel>
+#include <ParamTree/TreeView>
 
 namespace Ui {
 class MainWindow;
@@ -32,8 +32,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    ParamTreeModel* m_model;
-    ParamTreeView* m_treeview;
+    paramtree::TreeModel* m_model;
+    paramtree::TreeView* m_treeview;
     QString m_filename;
 
     QVBoxLayout* m_top_layout;

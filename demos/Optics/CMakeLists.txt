@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.5)
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -19,14 +20,13 @@ set(PROJECT_SOURCES
 add_executable(${This} ${PROJECT_SOURCES})
 
 target_include_directories(${This} 
-	PUBLIC ${CMAKE_SOURCE_DIR}/paramtree
+    PUBLIC ${CMAKE_SOURCE_DIR}/include
 )
 
 target_link_libraries(${This}
         PRIVATE Qt6::Widgets
-        PRIVATE paramtree
+        PUBLIC paramtree
 )
-
 
 
 

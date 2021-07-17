@@ -1,18 +1,20 @@
-#ifndef PARAMCOMBOBOX_H
-#define PARAMCOMBOBOX_H
+#ifndef TREECOMBOBOX_H
+#define TREECOMBOBOX_H
 
-#include "paramtreemodel.h"
-#include "paramtreeitem.h"
+#include "modelview/treemodel.h"
+#include "modelview/treeitem.h"
 #include <QComboBox>
 #include <QModelIndex>
 #include <QString>
 
-class ParamComboBox : public QComboBox
+namespace paramtree{
+
+class TreeComboBox : public QComboBox
 {
     Q_OBJECT
 
 public:
-    ParamComboBox(ParamTreeModel* model,const TreeItem& item,QWidget* parent=nullptr);
+    TreeComboBox(TreeModel* model,const TreeItem& item,QWidget* parent=nullptr);
     QString name() const;
 
 private slots:
@@ -20,8 +22,10 @@ private slots:
 
 private:
     QString m_name;
-    ParamTreeModel* m_model;
+    TreeModel* m_model;
     QModelIndex m_index;
 };
 
-#endif // PARAMCOMBOBOX_H
+}
+
+#endif // COMBOBOX_H

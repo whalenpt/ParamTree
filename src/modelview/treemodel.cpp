@@ -1,9 +1,11 @@
-#include "paramtreemodel.h"
-#include "paramtreeitem.h"
+#include "modelview/treemodel.h"
+#include "modelview/treeitem.h"
 #include <QDebug>
 #include <QFile>
 #include <QXmlStreamWriter>
 #include <QByteArray>
+
+namespace paramtree{
 
 const QString NAME_HEADER("Param");
 const QString VALUE_HEADER("Value");
@@ -13,18 +15,18 @@ const QChar XML_SEPERATOR('|');
 const QString FILE_FORMAT("PARAMTREE");
 const QString VERSION_NUM("1.1");
 
-ParamTreeModel::ParamTreeModel(QObject *parent)
+TreeModel::TreeModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
     root_item = new TreeItem(ROOT_NAME);
 }
 
-ParamTreeModel::~ParamTreeModel()
+TreeModel::~TreeModel()
 {
     delete root_item;
 }
 
-TreeItem* ParamTreeModel::itemForIndex(const QModelIndex& index) const
+TreeItem* TreeModel::itemForIndex(const QModelIndex& index) const
 {
     if(index.isValid()){
         TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
@@ -34,7 +36,7 @@ TreeItem* ParamTreeModel::itemForIndex(const QModelIndex& index) const
     return root_item;
 }
 
-QVariant ParamTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if(orientation == Qt::Horizontal && role == Qt::DisplayRole){
         if(section == 0)
@@ -45,7 +47,7 @@ QVariant ParamTreeModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
-QModelIndex ParamTreeModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     if(parent.isValid() && parent.column() != 0)
         return QModelIndex();
@@ -56,7 +58,7 @@ QModelIndex ParamTreeModel::index(int row, int column, const QModelIndex &parent
     return QModelIndex();
 }
 
-QModelIndex ParamTreeModel::parent(const QModelIndex &index) const
+QModelIndex TreeModel::parent(const QModelIndex &index) const
 {
     if(!index.isValid())
         return QModelIndex();
@@ -67,18 +69,18 @@ QModelIndex ParamTreeModel::parent(const QModelIndex &index) const
     return createIndex(parent_item->childNumber(),0,parent_item);
 }
 
-int ParamTreeModel::rowCount(const QModelIndex &parent) const
+int TreeModel::rowCount(const QModelIndex &parent) const
 {
     TreeItem* item = itemForIndex(parent);
     return item->childCount();
 }
 
-int ParamTreeModel::columnCount(const QModelIndex& /*parent*/) const
+int TreeModel::columnCount(const QModelIndex& /*parent*/) const
 {
     return 2;
 }
 
-QVariant ParamTreeModel::data(const QModelIndex &index, int role) const
+QVariant TreeModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -117,7 +119,7 @@ QVariant ParamTreeModel::data(const QModelIndex &index, int role) const
 }
 
 
-bool ParamTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     switch(role){
         case Qt::EditRole:
@@ -150,7 +152,7 @@ bool ParamTreeModel::setData(const QModelIndex &index, const QVariant &value, in
     return false;
 }
 
-Qt::ItemFlags ParamTreeModel::flags(const QModelIndex &index) const
+Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return Qt::NoItemFlags;
@@ -161,7 +163,7 @@ Qt::ItemFlags ParamTreeModel::flags(const QModelIndex &index) const
      return QAbstractItemModel::flags(index);
 }
 
-bool ParamTreeModel::insertRows(int row, int count, const QModelIndex &parent)
+bool TreeModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     TreeItem* parent_item = itemForIndex(parent);
     bool success;
@@ -173,7 +175,7 @@ bool ParamTreeModel::insertRows(int row, int count, const QModelIndex &parent)
     return success;
 }
 
-bool ParamTreeModel::removeRows(int row, int count, const QModelIndex &parent)
+bool TreeModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     TreeItem *parent_item = itemForIndex(parent);
     bool success = true;
@@ -185,7 +187,7 @@ bool ParamTreeModel::removeRows(int row, int count, const QModelIndex &parent)
 
 
 
-QModelIndex ParamTreeModel::addItem(const TreeItem& item,const QModelIndex& parent_index)
+QModelIndex TreeModel::addItem(const TreeItem& item,const QModelIndex& parent_index)
 {
     TreeItem* parent = itemForIndex(parent_index);
     int position = parent->childCount();
@@ -195,24 +197,24 @@ QModelIndex ParamTreeModel::addItem(const TreeItem& item,const QModelIndex& pare
     return index(position,0,parent_index);
 }
 
-QModelIndex ParamTreeModel::getIndex(const QString& name,const QModelIndex& parent) const
+QModelIndex TreeModel::getIndex(const QString& name,const QModelIndex& parent) const
 {
     return indexForPath(parent,QStringList() << name);
 }
 
-const TreeItem& ParamTreeModel::getItem(const QString& name,const QModelIndex& parent) const
+const TreeItem& TreeModel::getItem(const QString& name,const QModelIndex& parent) const
 {
     QModelIndex index = indexForPath(parent,QStringList() << name);
     return *itemForIndex(index);
 }
 
-const TreeItem& ParamTreeModel::getItem(const QStringList& key) const
+const TreeItem& TreeModel::getItem(const QStringList& key) const
 {
     QModelIndex index = indexForPath(QModelIndex(),key);
     return *itemForIndex(index);
 }
 
-bool ParamTreeModel::hasItem(const QStringList& key) const
+bool TreeModel::hasItem(const QStringList& key) const
 {
     // Empty key corresponds to root index
     if(key.isEmpty())
@@ -226,22 +228,22 @@ bool ParamTreeModel::hasItem(const QStringList& key) const
     return false;
 }
 
-bool ParamTreeModel::contains(const QStringList& key) const
+bool TreeModel::contains(const QStringList& key) const
 {
     return hasItem(key);
 }
 
-const TreeItem& ParamTreeModel::getItem(const QModelIndex &index) const
+const TreeItem& TreeModel::getItem(const QModelIndex &index) const
 {
     return *itemForIndex(index);
 }
 
-const TreeItem& ParamTreeModel::getRootItem() const
+const TreeItem& TreeModel::getRootItem() const
 {
     return *root_item;
 }
 
-QModelIndex ParamTreeModel::getValIndex(const QModelIndex& index) const
+QModelIndex TreeModel::getValIndex(const QModelIndex& index) const
 {
     if(!index.isValid())
         return QModelIndex();
@@ -249,11 +251,11 @@ QModelIndex ParamTreeModel::getValIndex(const QModelIndex& index) const
     if(index.column() == 1)
         return index;
 
-    return ParamTreeModel::index(index.row(),1,index.parent());
+    return TreeModel::index(index.row(),1,index.parent());
 }
 
 
-QModelIndex ParamTreeModel::getNameIndex(const QModelIndex& index) const
+QModelIndex TreeModel::getNameIndex(const QModelIndex& index) const
 {
     if(!index.isValid())
          return QModelIndex();
@@ -261,12 +263,12 @@ QModelIndex ParamTreeModel::getNameIndex(const QModelIndex& index) const
     if(index.column() == 0)
          return index;
 
-    return ParamTreeModel::index(index.row(),0,index.parent());
+    return TreeModel::index(index.row(),0,index.parent());
 }
 
 
 
-QModelIndex ParamTreeModel::getIndex(const TreeItem& item) const
+QModelIndex TreeModel::getIndex(const TreeItem& item) const
 {
     QStringList pathkey = item.pathkey();
 
@@ -277,23 +279,23 @@ QModelIndex ParamTreeModel::getIndex(const TreeItem& item) const
     return indexForPath(QModelIndex(), pathkey.mid(1));
 }
 
-QModelIndex ParamTreeModel::getIndex(const QStringList& key) const
+QModelIndex TreeModel::getIndex(const QStringList& key) const
 {
     return indexForPath(QModelIndex(),key);
 }
 
-QModelIndex ParamTreeModel::getValIndex(const TreeItem& item) const
+QModelIndex TreeModel::getValIndex(const TreeItem& item) const
 {
     return getValIndex(getIndex(item));
 }
 
-QModelIndex ParamTreeModel::getValIndex(const QStringList& key) const
+QModelIndex TreeModel::getValIndex(const QStringList& key) const
 {
     return getValIndex(getIndex(key));
 }
 
 // Settings warning: QVariant type not necessarily saved properly (int->qlonglong)
-void ParamTreeModel::saveToSettings(QSettings& settings, const TreeItem& item) const
+void TreeModel::saveToSettings(QSettings& settings, const TreeItem& item) const
 {
     if(item.isLeaf()){
         QModelIndex index = getIndex(item);
@@ -307,7 +309,7 @@ void ParamTreeModel::saveToSettings(QSettings& settings, const TreeItem& item) c
     }
 }
 
-void ParamTreeModel::saveToSettings(QSettings& settings,
+void TreeModel::saveToSettings(QSettings& settings,
                                 const QModelIndex& index) const
 {
     if(!index.isValid())
@@ -315,7 +317,7 @@ void ParamTreeModel::saveToSettings(QSettings& settings,
     saveToSettings(settings,*itemForIndex(index));
 }
 
-QVariant ParamTreeModel::readFromSettings(QSettings& settings,const QStringList& key)
+QVariant TreeModel::readFromSettings(QSettings& settings,const QStringList& key)
 {
     if(key.isEmpty())
         return QVariant();
@@ -328,7 +330,7 @@ QVariant ParamTreeModel::readFromSettings(QSettings& settings,const QStringList&
 
 
 // Returns index of parameter name (column 0)
-QModelIndex ParamTreeModel::indexForPath(const QModelIndex &parent,
+QModelIndex TreeModel::indexForPath(const QModelIndex &parent,
                                     const QStringList &path) const
 {
     if (path.isEmpty())
@@ -347,7 +349,7 @@ QModelIndex ParamTreeModel::indexForPath(const QModelIndex &parent,
     return QModelIndex();
 }
 
-QStringList ParamTreeModel::getKey(const QModelIndex& index) const
+QStringList TreeModel::getKey(const QModelIndex& index) const
 {
     QStringList key;
     key.push_front(getNameIndex(index).data().toString());
@@ -359,7 +361,7 @@ QStringList ParamTreeModel::getKey(const QModelIndex& index) const
     return key;
 }
 
-bool ParamTreeModel::save(const QString& filepath)
+bool TreeModel::save(const QString& filepath)
 {
     QFile file(filepath);
     // If save fails its up to user to deal with it
@@ -377,7 +379,7 @@ bool ParamTreeModel::save(const QString& filepath)
     return true;
 }
 
-void ParamTreeModel::writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item)
+void TreeModel::writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item)
 {
     if(item != root_item) {
         writer.writeStartElement("TREENODE");
@@ -422,7 +424,7 @@ void writeAuxMap(QXmlStreamWriter& writer,const QMap<QString,QVariant>& map)
 }
 
 
-bool ParamTreeModel::load(const QString& filename)
+bool TreeModel::load(const QString& filename)
 {
     if(filename.isEmpty())
         return false;
@@ -432,7 +434,7 @@ bool ParamTreeModel::load(const QString& filename)
     clear();
 
     QXmlStreamReader reader(&file);
-    //Check file type has ParamTreeModel data in it (in the current version)
+    //Check file type has TreeModel data in it (in the current version)
     reader.readNextStartElement();
     if(reader.name() != FILE_FORMAT)
         return false;
@@ -447,7 +449,7 @@ bool ParamTreeModel::load(const QString& filename)
 }
 
 
-void ParamTreeModel::readTreeItems(QXmlStreamReader& reader,TreeItem* item)
+void TreeModel::readTreeItems(QXmlStreamReader& reader,TreeItem* item)
 {
     while(!reader.atEnd()){
         reader.readNext();
@@ -506,12 +508,14 @@ void readAuxMap(QXmlStreamReader& reader,TreeItem* item)
     }
 }
 
-void ParamTreeModel::clear()
+void TreeModel::clear()
 {
     delete root_item;
     root_item = new TreeItem(ROOT_NAME);
     beginResetModel();
     endResetModel();
+}
+
 }
 
 

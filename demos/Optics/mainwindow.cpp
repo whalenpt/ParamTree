@@ -4,9 +4,10 @@
 #include "ui_mainwindow.h"
 #include "opticstree.h"
 
-#include <ParamTree/paramtreemodel.h>
-#include <ParamTree/paramtreeview.h>
-#include <ParamTree/paramtabwidget.h>
+#include <ParamTree/TreeModel>
+#include <ParamTree/TreeView>
+#include <ParamTree/TreeTabWidget>
+#include <ParamTree/TreeWidget>
 
 #include <QSettings>
 #include <QVBoxLayout>
@@ -23,6 +24,8 @@ const QString FILENAME_SETTING("MainWindow/Filename");
 const QString WINDOWSIZE_SETTING("MainWindow/Size");
 const QString WINDOWPOS_SETTING("MainWindow/Pos");
 
+using namespace paramtree;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -32,8 +35,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_medium_layout(new QVBoxLayout)
 {
     ui->setupUi(this);
-    m_model = new ParamTreeModel(this);
-    m_treeview = new ParamTreeView(m_model);
+    m_model = new TreeModel(this);
+    m_treeview = new TreeView(m_model);
 
     // Add the tree view to the ui
     QVBoxLayout* tree_layout = new QVBoxLayout;
@@ -74,8 +77,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     expandAll();
     QVBoxLayout* vbox = new QVBoxLayout;
-    ParamTabWidget* m_tab_widget = new ParamTabWidget(m_model);
-    vbox->addWidget(m_tab_widget);
+    TreeTabWidget* tab_widget = new TreeTabWidget(m_model);
+    TreeWidget* tree_widget = new TreeWidget(m_model);
+
+    vbox->addWidget(tab_widget);
     ui->tabWidget->setLayout(vbox);
 }
 
@@ -159,7 +164,7 @@ void MainWindow::collapseAll()
 
 void MainWindow::dataChanged(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
 {
-    QStringList key = m_model->data(topLeft,ParamTreeModel::Role::KEY).toStringList();
+    QStringList key = m_model->data(topLeft,TreeModel::Role::KEY).toStringList();
     const TreeItem& item = m_model->getItem(topLeft);
     if(key == (QStringList() << "Coordinate Dependency")){
         optics::updateCD(item,m_model);

@@ -1,41 +1,38 @@
-#include "scientificlineedit.h"
+
+
+#include "itemwidgets/treescilineedit.h"
+#include "shared/scientificlineedit.h"
 #include <QDoubleValidator>
-#include <QDebug>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include <QAbstractItemModel>
 #include <string>
 #include <sstream>
 #include <iomanip>
-#include <QRegularExpression>
-#include <QRegularExpressionMatch>
 
-ScientificLineEdit::ScientificLineEdit(QWidget* parent) :
-    QLineEdit(parent)
+namespace paramtree{
+
+TreeSciLineEdit::TreeSciLineEdit(TreeModel* model,const TreeItem& item,QWidget* parent) :
+    ScientificLineEdit(parent),
+    m_name(item.name()),
+    m_model(model),
+    m_index(model->getValIndex(item))
 {
-    QDoubleValidator* dv = new QDoubleValidator(this);
-    dv->setNotation(QDoubleValidator::ScientificNotation);
-    QLineEdit::setValidator(dv);
+    ScientificLineEdit::setValue(m_model->data(m_index,Qt::DisplayRole).toDouble());
+    connect(this,&QLineEdit::editingFinished, [this] {
+       m_model->setData(m_index,ScientificLineEdit::value(),Qt::EditRole);
+    });
+    connect(m_model,&QAbstractItemModel::dataChanged,this,&TreeSciLineEdit::setEditorData);
 }
 
-void ScientificLineEdit::setValue(double value)
+void TreeSciLineEdit::setEditorData(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
 {
-
-    QString str_num(QString::number(value,'e',12));
-    QLineEdit::setText(formatNumericString(str_num));
-}
-
-QString formatNumericString(const QString& str)
-{
-    QRegularExpression re("0*e");
-    QString formated_str(str);
-    formated_str.replace(re,QString("e"));
-    if(formated_str.contains(".e",Qt::CaseInsensitive)){
-        int decimal_position = formated_str.indexOf('.');
-        formated_str.insert(decimal_position+1,'0');
+    if(m_index == topLeft){
+        double value = m_index.data(Qt::DisplayRole).toDouble();
+        ScientificLineEdit::setValue(value);
     }
-    return formated_str;
 }
 
-double ScientificLineEdit::value() const
-{
-    return QLineEdit::text().toDouble();
 }
+
 
