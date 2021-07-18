@@ -5,9 +5,9 @@ structure using the Qt framework. Designed primarily for scientific applications
 its main purpose is to be able to view and change parameters seamlessly at multiple locations
 in an application GUI.
 
-Core functionality is provided in the ParamTreeModel class which is a subclass
-of QAbstractItemModel. The ParamTreeView and ParamTabWidget classes are for displaying and editing
-the values stored in the ParamTreeModel.
+Core functionality is provided in the TreeModel class which is a subclass
+of QAbstractItemModel. The TreeView, TreeWidget, and TreeTabWidget classes are 
+for displaying and editing the values stored in the TreeModel. 
 
 # Dependencies #
 
@@ -41,9 +41,9 @@ cmake -S . -B build -DCMAKE_PREFIX_PATH=<Path_To_Qt_Folder/Qt_Version/compiler_n
 cd build
 make -j4
 ```
-The paramtree library file is under the paramtree subdirectory of build. Examples
+The paramtree library file is under the src subdirectory of build. Examples
 are in the demos subdirectory. For instance, to run the Optics demo change directory
-into demos/Optics and run the executable named Optics.
+into demos/Optics and run the executable named optics.
 
 A similar procedure can be done for from the Windows Powershell with a few additional
 options to the cmake command
