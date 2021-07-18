@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     tree_layout->addWidget(m_treeview);
     // ui->treeWidget takes ownership of tree_layout
     // (so no parent necessary when instantiating tree_layout)
-    ui->treeWidget->setLayout(tree_layout);
+    ui->treeViewWidget->setLayout(tree_layout);
     // m_treeview parent now ui->treeWidget
 
     QAction* expand_action = new QAction("Expand all");
@@ -76,12 +76,16 @@ MainWindow::MainWindow(QWidget *parent) :
 //        optics::generateTree(m_model);
 
     expandAll();
+
+
+
     QVBoxLayout* vbox = new QVBoxLayout;
     TreeTabWidget* tab_widget = new TreeTabWidget(m_model);
-    TreeWidget* tree_widget = new TreeWidget(m_model);
-
     vbox->addWidget(tab_widget);
     ui->tabWidget->setLayout(vbox);
+
+    TreeWidget* tree_widget = new TreeWidget(m_model);
+    ui->scrollArea->setWidget(tree_widget);
 }
 
 MainWindow::~MainWindow()
