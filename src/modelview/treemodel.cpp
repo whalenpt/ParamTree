@@ -105,6 +105,14 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
         return item->aux("RANGE");
     else if (role == Role::AUXMAP)
         return item->auxMap();
+    else if (role == Qt::CheckStateRole && index.column() == 1 && \
+            item->dtype() == TreeItem::DataType::BOOL){
+        if(item->value().toBool())
+            return Qt::Checked;
+        else
+            return Qt::Unchecked;
+    }
+        
     return QVariant();
 }
 
@@ -131,6 +139,19 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int rol
         item->setAux("RANGE",value);
         emit dataChanged(index, index, QVector<int>() << role);
         return true;
+    } else if (role == Qt::CheckStateRole && 
+            index.column() == 1 && 
+            static_cast<TreeItem::DataType>( data(index,Role::DATATYPE).toInt()) == TreeItem::DataType::BOOL) 
+    {
+        if (data(index, role) != value) {
+            TreeItem* item = itemForIndex(index);
+            if(static_cast<Qt::CheckState>(value.toInt()) == Qt::Checked)
+                item->setValue(true);
+            else
+                item->setValue(false);
+            emit dataChanged(index, index, QVector<int>() << role);
+            return true;
+        }
     }
     return false;
 }
@@ -142,8 +163,9 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 
     if(index.column() == 1 && itemForIndex(index)->isLeaf()){
         if(static_cast<TreeItem::DataType>(data(index,Role::DATATYPE).toInt()) == \
-                TreeItem::DataType::BOOL)
-            return Qt::ItemIsUserCheckable | QAbstractItemModel::flags(index);
+                TreeItem::DataType::BOOL){
+            return Qt::ItemIsUserCheckable | QAbstractItemModel::flags(index); 
+        }
         return Qt::ItemIsEditable | QAbstractItemModel::flags(index);
     }
     return QAbstractItemModel::flags(index);
