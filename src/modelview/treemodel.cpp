@@ -86,35 +86,25 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     TreeItem* item = itemForIndex(index);
-    switch(role){
-        case Qt::DisplayRole:
-        case Qt::EditRole: {
-            int col = index.column();
-            if(col == 0){
-                return item->name();
-            }
-            else if(col == 1){
-                return item->value();
-            }
-            break;
+    if(role == Qt::DisplayRole || role == Qt::EditRole) {
+        int col = index.column();
+        if(col == 0){
+            return item->name();
         }
-        case Role::KEY: {
+        else if(col == 1){
+            return item->value();
+        }
+    } else if (role == Role::KEY){
            // first item in pathkey is the root name, this is not part of the QStringList key
-           return QVariant(item->pathkey().mid(1));
-        }
-        case Role::STRINGKEY: {
-            return item->pathkey().mid(1).join("/");
-        }
-        case Role::DATATYPE: {
-            return static_cast<int>(item->dtype());
-        }
-        case Role::RANGE: {
-            return item->aux("RANGE");
-        }
-        case Role::AUXMAP: {
-            return item->auxMap();
-        }
-    }
+        return QVariant(item->pathkey().mid(1));
+    } else if (role == Role::STRINGKEY) 
+        return item->pathkey().mid(1).join("/");
+    else if (role == Role::DATATYPE) 
+        return static_cast<int>(item->dtype());
+    else if (role == Role::RANGE)
+        return item->aux("RANGE");
+    else if (role == Role::AUXMAP)
+        return item->auxMap();
     return QVariant();
 }
 
