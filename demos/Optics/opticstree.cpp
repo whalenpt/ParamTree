@@ -57,7 +57,7 @@ void generateTree(TreeModel* model)
     n0.setAux("STEP SIZE",0.01);
     medium.addItem(n0);
     medium.addItem(TreeItem("n2",default_map["n2"],TreeItem::DataType::SCIENTIFIC));
-    TreeItem plas_gen("PlasmaGeneration",default_map["PlasmaGeneration"],TreeItem::DataType::COMBO);
+    TreeItem plas_gen("PlasmaGeneration",default_map["PlasmaGeneration"],TreeItem::DataType::BOOL);
     plas_gen.setAux("RANGE",QStringList() << "on" << "off");
     medium.addItem(plas_gen);
 
@@ -95,7 +95,7 @@ void generateDefaultMap()
     default_map["n0"] = 1.334;
     default_map["n2"] =  4.1e-20;
 
-    default_map["PlasmaGeneration"] = "on";
+    default_map["PlasmaGeneration"] = true;
     default_map["rhoN"] = 6.68e28;
     default_map["MultiphotonK"] = QVariant(5);
     default_map["SigmaK"] = 1.2e-72;
@@ -128,12 +128,11 @@ void loadPlasma(TreeModel* model){
 
 void updatePlasma(const TreeItem& item,TreeModel* model)
 {
-    QString val = item.value().toString();
-    if(val == "on"){
+    if(item.value().toBool()){
         if(!model->hasItem(PLASMA_KEY)){
             loadPlasma(model);
         }
-    } else if(val == "off") {
+    } else {
         if(model->hasItem(PLASMA_KEY)){
             QModelIndex index = model->getIndex(PLASMA_KEY);
             QSettings settings;

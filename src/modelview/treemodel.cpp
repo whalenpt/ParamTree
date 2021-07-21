@@ -140,10 +140,13 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::NoItemFlags;
 
-    if(index.column() == 1 && itemForIndex(index)->isLeaf())
-         return Qt::ItemIsEditable | QAbstractItemModel::flags(index);
-
-     return QAbstractItemModel::flags(index);
+    if(index.column() == 1 && itemForIndex(index)->isLeaf()){
+        if(static_cast<TreeItem::DataType>(data(index,Role::DATATYPE).toInt()) == \
+                TreeItem::DataType::BOOL)
+            return Qt::ItemIsUserCheckable | QAbstractItemModel::flags(index);
+        return Qt::ItemIsEditable | QAbstractItemModel::flags(index);
+    }
+    return QAbstractItemModel::flags(index);
 }
 
 bool TreeModel::insertRows(int row, int count, const QModelIndex &parent)
