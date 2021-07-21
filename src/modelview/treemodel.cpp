@@ -111,33 +111,26 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
 
 bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    switch(role){
-        case Qt::EditRole:
-        case Qt::DisplayRole:
-        {
-            if (data(index, role) != value) {
-                TreeItem* item = itemForIndex(index);
-                int col = index.column();
-                if(col == 0)
-                    item->setName(value.toString());
-                else if(col == 1){
-                    item->setValue(value);
-                }
-                else
-                    return false;
-
-                emit dataChanged(index, index, QVector<int>() << role);
-                return true;
-            }
-            break;
-        }
-
-        case Role::RANGE: {
+    if(role == Qt::EditRole || role == Qt::DisplayRole){
+        if (data(index, role) != value) {
             TreeItem* item = itemForIndex(index);
-            item->setAux("RANGE",value);
+            int col = index.column();
+            if(col == 0)
+                item->setName(value.toString());
+            else if(col == 1){
+                item->setValue(value);
+            }
+            else
+                return false;
+
             emit dataChanged(index, index, QVector<int>() << role);
             return true;
         }
+    } else if (role == Role::RANGE) {
+        TreeItem* item = itemForIndex(index);
+        item->setAux("RANGE",value);
+        emit dataChanged(index, index, QVector<int>() << role);
+        return true;
     }
     return false;
 }
