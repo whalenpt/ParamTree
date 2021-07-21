@@ -23,14 +23,14 @@ QString TreeCheckBox::name() const {
 
 void TreeCheckBox::setEditorData(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
 {
-    if(m_index == topLeft)
-        QCheckBox::setCheckState(m_index.data(Qt::DisplayRole).toBool() ? Qt::Checked : Qt::Unchecked);
+    if(m_index == topLeft){
+        Qt::CheckState state = static_cast<Qt::CheckState>(m_index.data(Qt::CheckStateRole).toUInt());
+        QCheckBox::setCheckState(state);
+    }
 }
 
 void TreeCheckBox::updateModel(int val) {
-    Qt::CheckState state(static_cast<Qt::CheckState>(val));
-    QVariant var(state == Qt::Checked ? QVariant(true) : QVariant(false));
-    m_model->setData(m_index,var,Qt::EditRole);
+    m_model->setData(m_index,static_cast<Qt::CheckState>(val),Qt::CheckStateRole);
 }
 
 }

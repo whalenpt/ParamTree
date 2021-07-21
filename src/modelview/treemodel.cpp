@@ -88,10 +88,11 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
     TreeItem* item = itemForIndex(index);
     if(role == Qt::DisplayRole || role == Qt::EditRole) {
         int col = index.column();
-        if(col == 0){
+        if(col == 0)
             return item->name();
-        }
         else if(col == 1){
+            if(item->dtype() == TreeItem::DataType::BOOL)
+                return QVariant();
             return item->value();
         }
     } else if (role == Role::KEY){
@@ -122,6 +123,8 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int rol
     if(role == Qt::EditRole || role == Qt::DisplayRole){
         if (data(index, role) != value) {
             TreeItem* item = itemForIndex(index);
+            if(item->dtype() == TreeItem::DataType::BOOL)
+                return false;
             int col = index.column();
             if(col == 0)
                 item->setName(value.toString());
