@@ -28,7 +28,8 @@ ItemWidget::ItemWidget(const TreeItem& item,QWidget* widget) :
     label->setMaximumHeight(WIDGET_HEIGHT);
 
     hbox->addWidget(label);
-    hbox->addSpacing(LABEL_WIDGET_SPACING);
+    //hbox->addSpacing(LABEL_WIDGET_SPACING);
+    hbox->addStretch();
     hbox->addWidget(widget);
     setLayout(hbox);
 }
