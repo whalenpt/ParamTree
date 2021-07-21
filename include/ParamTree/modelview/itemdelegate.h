@@ -22,12 +22,10 @@ public:
     void updateEditorGeometry(QWidget* editor,const QStyleOptionViewItem& option,
                               const QModelIndex& index) const override;
 
-    mutable QComboBox* combo_box;
-    mutable QComboBox* m_bool_box;
+    mutable QComboBox* m_combo_box;
 
 private slots:
     void setComboData(int val);
-    void setBoolData(int val);
 };
 
 }

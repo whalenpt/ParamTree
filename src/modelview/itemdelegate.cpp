@@ -30,20 +30,13 @@ QWidget* ItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem 
                 throw std::runtime_error("ItemDelegate::createEditor error.");
             range = rangevar.toStringList();
         }
-        combo_box = new QComboBox(parent);
+        m_combo_box = new QComboBox(parent);
         if(!range.isEmpty())
-            combo_box->addItems(range);
-        combo_box->setStyleSheet("border: none");
-        connect(combo_box,SIGNAL(currentIndexChanged(int)),this,SLOT(setComboData(int)));
-        return combo_box;
-    } else if(item->dtype() == TreeItem::DataType::BOOL){
-        m_bool_box = new QComboBox(parent);
-        m_bool_box->addItems(QStringList() << "True" << "False");
-        m_bool_box->setStyleSheet("border: none");
-        connect(m_bool_box,SIGNAL(currentIndexChanged(int)),this,SLOT(setBoolData(int)));
-        return m_bool_box;
-    }
-    else if(item->dtype() == TreeItem::DataType::SCIENTIFIC){
+            m_combo_box->addItems(range);
+        m_combo_box->setStyleSheet("border: none");
+        connect(m_combo_box,SIGNAL(currentIndexChanged(int)),this,SLOT(setComboData(int)));
+        return m_combo_box;
+    } else if(item->dtype() == TreeItem::DataType::SCIENTIFIC){
         ScientificLineEdit* editor = new ScientificLineEdit(parent);
         return editor;
     }
@@ -79,10 +72,6 @@ void ItemDelegate::setEditorData(QWidget* editor,const QModelIndex& index) const
         QString text = index.data(Qt::DisplayRole).toString();
         (static_cast<QComboBox*>(editor))->setCurrentText(text);
         return;
-    } else if(item->dtype() == TreeItem::DataType::BOOL){
-        static_cast<QComboBox*>(editor)->setCurrentText(\
-                    index.data(Qt::DisplayRole).toBool() ? "true" : "false");
-        return;
     } else if(item->dtype() == TreeItem::DataType::SCIENTIFIC){
         double val = index.data(Qt::DisplayRole).toDouble();
         (static_cast<ScientificLineEdit*>(editor))->setValue(val);
@@ -115,12 +104,7 @@ void ItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     if(item->dtype() == TreeItem::DataType::COMBO){
         model->setData(index,static_cast<QComboBox*>(editor)->currentText(),Qt::EditRole);
         return;
-    } else if(item->dtype() == TreeItem::DataType::BOOL){
-        QString val(static_cast<QComboBox*>(editor)->currentText());
-        QVariant var(val == "true" ? QVariant(true) : QVariant(false));
-        model->setData(index,var,Qt::EditRole);
-    }
-    else if(item->dtype() == TreeItem::DataType::SCIENTIFIC) {
+    } else if(item->dtype() == TreeItem::DataType::SCIENTIFIC) {
         model->setData(index,static_cast<ScientificLineEdit*>(editor)->value(),Qt::EditRole);
         return;
     }
@@ -148,13 +132,10 @@ void ItemDelegate::updateEditorGeometry(QWidget* editor,const QStyleOptionViewIt
 
 void ItemDelegate::setComboData(int /*val*/)
 {
-    emit commitData(combo_box);
+    emit commitData(m_combo_box);
 }
 
-void ItemDelegate::setBoolData(int /*val*/)
-{
-    emit commitData(m_bool_box);
-}
+
 
 }
 
