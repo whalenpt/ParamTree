@@ -58,7 +58,6 @@ void generateTree(TreeModel* model)
     medium.addItem(n0);
     medium.addItem(TreeItem("n2",default_map["n2"],TreeItem::DataType::SCIENTIFIC));
     TreeItem plas_gen("PlasmaGeneration",default_map["PlasmaGeneration"],TreeItem::DataType::BOOL);
-    plas_gen.setAux("RANGE",QStringList() << "on" << "off");
     medium.addItem(plas_gen);
 
 //    if(cd.value().toString() == "RT")
