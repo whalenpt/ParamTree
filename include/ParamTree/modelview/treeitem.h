@@ -73,7 +73,7 @@ private:
     QVariant m_val;
     DataType m_dtype;
     AuxMap m_aux_map;
-    std::vector<TreeItem*> child_items;
+    std::vector<TreeItem*> m_child_items;
     TreeItem* m_parent;
 };
 

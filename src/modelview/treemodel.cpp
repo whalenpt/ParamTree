@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QXmlStreamWriter>
 #include <QByteArray>
+#include <stdexcept>
 
 namespace paramtree{
 
@@ -18,12 +19,12 @@ const QString VERSION_NUM("1.1");
 TreeModel::TreeModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    root_item = new TreeItem(ROOT_NAME);
+    m_root_item = new TreeItem(ROOT_NAME);
 }
 
 TreeModel::~TreeModel()
 {
-    delete root_item;
+    delete m_root_item;
 }
 
 TreeItem* TreeModel::itemForIndex(const QModelIndex& index) const
@@ -33,7 +34,7 @@ TreeItem* TreeModel::itemForIndex(const QModelIndex& index) const
         if(item)
             return item;
     }
-    return root_item;
+    return m_root_item;
 }
 
 QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -64,7 +65,7 @@ QModelIndex TreeModel::parent(const QModelIndex &index) const
         return QModelIndex();
     TreeItem* child_item = itemForIndex(index);
     TreeItem* parent_item = child_item->parent();
-    if(parent_item == root_item)
+    if(parent_item == m_root_item)
         return QModelIndex();
     return createIndex(parent_item->childNumber(),0,parent_item);
 }
@@ -196,7 +197,16 @@ bool TreeModel::removeRows(int row, int count, const QModelIndex &parent)
     return success;
 }
 
-
+#include <QDebug>
+void TreeModel::boolLink(const QModelIndex& index1,const QModelIndex& index2)
+{
+    TreeItem* boolItem = itemForIndex(index1);
+    qDebug() << boolItem->name();
+    if(boolItem->dtype() != TreeItem::DataType::BOOL){
+        throw std::invalid_argument("TreeModel::boolLink error, index1 must be\
+                a reference to a TreeItem with DataType of BOOL"); 
+    }
+}
 
 QModelIndex TreeModel::addItem(const TreeItem& item,const QModelIndex& parent_index)
 {
@@ -251,7 +261,7 @@ const TreeItem& TreeModel::getItem(const QModelIndex &index) const
 
 const TreeItem& TreeModel::getRootItem() const
 {
-    return *root_item;
+    return *m_root_item;
 }
 
 QModelIndex TreeModel::getValIndex(const QModelIndex& index) const
@@ -282,7 +292,6 @@ QModelIndex TreeModel::getNameIndex(const QModelIndex& index) const
 QModelIndex TreeModel::getIndex(const TreeItem& item) const
 {
     QStringList pathkey = item.pathkey();
-
     // Check that item has a root consistent with the model
     if(pathkey.at(0) !=  ROOT_NAME)
         return QModelIndex();
@@ -315,7 +324,7 @@ void TreeModel::saveToSettings(QSettings& settings, const TreeItem& item) const
         QString settings_key = data(index,Role::STRINGKEY).toString();
         settings.setValue(settings_key,item.value());
     } else{
-        for(auto child : item.child_items)
+        for(auto child : item.m_child_items)
             saveToSettings(settings,*child);
     }
 }
@@ -384,7 +393,7 @@ bool TreeModel::save(const QString& filepath)
     writer.writeStartElement(FILE_FORMAT);
     writer.writeAttribute("VERSION",VERSION_NUM);
 
-    writeTreeItem(writer,root_item);
+    writeTreeItem(writer,m_root_item);
     writer.writeEndElement();
     writer.writeEndDocument();
     return true;
@@ -392,14 +401,14 @@ bool TreeModel::save(const QString& filepath)
 
 void TreeModel::writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item)
 {
-    if(item != root_item) {
+    if(item != m_root_item) {
         writer.writeStartElement("TREENODE");
         writeNode(writer,*item);
     }
-    for(auto child : item->child_items){
+    for(auto child : item->m_child_items){
         writeTreeItem(writer,child);
     }
-    if(item != root_item)
+    if(item != m_root_item)
         writer.writeEndElement();
 }
 
@@ -452,7 +461,7 @@ bool TreeModel::load(const QString& filename)
     if(reader.attributes().value("VERSION") != VERSION_NUM)
         return false;
 
-    readTreeItems(reader,root_item);
+    readTreeItems(reader,m_root_item);
     beginResetModel();
     endResetModel();
 
@@ -467,7 +476,7 @@ void TreeModel::readTreeItems(QXmlStreamReader& reader,TreeItem* item)
         if(reader.isStartElement()){
             TreeItem* child = readNode(reader);
             child->m_parent = item;
-            item->child_items.push_back(child);
+            item->m_child_items.push_back(child);
             item = child;
         } else if(reader.isEndElement()){
             item = item->m_parent;
@@ -521,8 +530,8 @@ void readAuxMap(QXmlStreamReader& reader,TreeItem* item)
 
 void TreeModel::clear()
 {
-    delete root_item;
-    root_item = new TreeItem(ROOT_NAME);
+    delete m_root_item;
+    m_root_item = new TreeItem(ROOT_NAME);
     beginResetModel();
     endResetModel();
 }

@@ -60,18 +60,18 @@ void generateTree(TreeModel* model)
     TreeItem plas_gen("PlasmaGeneration",default_map["PlasmaGeneration"],TreeItem::DataType::BOOL);
     medium.addItem(plas_gen);
 
-//    if(cd.value().toString() == "RT")
-//        loadPlasma(model);
-
     TreeItem plasma("PLASMA");
     plasma.addItem(TreeItem("rhoN",default_map["rhoN"],TreeItem::DataType::SCIENTIFIC));
     plasma.addItem(TreeItem("MultiphotonK",default_map["MultiphotonK"]));
     plasma.addItem(TreeItem("SigmaK",default_map["SigmaK"],TreeItem::DataType::SCIENTIFIC));
     plasma.addItem(TreeItem("CollisionTime",default_map["CollisionTime"],TreeItem::DataType::SCIENTIFIC));
     plasma.addItem(TreeItem("Ui",default_map["Ui"]));
-
     medium.addItem(plasma);
+
     model->addItem(medium);
+    QStringList plasgen_key,plas_key;
+    plasgen_key << "MEDIUM" << "PlasmaGeneration";
+//    model->boolLink(model->getIndex(QStringList() << "MEDIUM" << "PlasmaGeneration")
 }
 
 void generateDefaultMap()

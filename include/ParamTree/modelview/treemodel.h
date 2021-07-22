@@ -55,6 +55,7 @@ public:
     // returns index with column = 0 corresponding to the name of the name/value parameter
     QModelIndex addItem(const TreeItem& item,const QModelIndex& parent = QModelIndex());
 
+
     const TreeItem& getItem(const QString& key,const QModelIndex& parent = QModelIndex()) const;
     const TreeItem& getItem(const QStringList& key) const;
     const TreeItem& getItem(const QModelIndex& index) const;
@@ -76,7 +77,7 @@ public:
     QModelIndex getNameIndex(const QModelIndex& index) const;
     QStringList getKey(const QModelIndex& index) const;
 
-
+    void boolLink(const QModelIndex& index1,const QModelIndex& index2);
     bool save(const QString& filename);
     bool load(const QString& filename);
     void clear();
@@ -86,7 +87,9 @@ public:
     QVariant readFromSettings(QSettings& settings,const QStringList& key);
 
 private:
-    TreeItem* root_item;
+    TreeItem* m_root_item;
+    QSettings* m_settings;
+
     TreeItem* itemForIndex(const QModelIndex& index) const;
     QModelIndex indexForPath(const QModelIndex& parent,const QStringList& path) const;
 
