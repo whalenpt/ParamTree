@@ -21,14 +21,11 @@ ItemWidget::ItemWidget(const TreeItem& item,QWidget* widget) :
     hbox->setSizeConstraint(QLayout::SetMinimumSize);
 
     widget->setMinimumSize(QSize(MIN_WIDGET_WIDTH,WIDGET_HEIGHT));
-//    widget->setMaximumSize(QSize(MAX_WIDGET_WIDTH,WIDGET_HEIGHT));
-
     QLabel* label = new QLabel(m_name + ":");
     label->setMinimumSize(QSize(MIN_LABEL_WIDTH,WIDGET_HEIGHT));
     label->setMaximumHeight(WIDGET_HEIGHT);
 
     hbox->addWidget(label);
-    //hbox->addSpacing(LABEL_WIDGET_SPACING);
     hbox->addStretch();
     hbox->addWidget(widget);
     setLayout(hbox);
