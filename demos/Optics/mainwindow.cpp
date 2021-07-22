@@ -77,15 +77,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     expandAll();
 
-
-
-    QVBoxLayout* vbox = new QVBoxLayout;
     TreeTabWidget* tab_widget = new TreeTabWidget(m_model);
-    vbox->addWidget(tab_widget);
-    ui->tabWidget->setLayout(vbox);
-
+    ui->tab_scrollArea->setWidget(tab_widget);
     TreeWidget* tree_widget = new TreeWidget(m_model);
-    ui->scrollArea->setWidget(tree_widget);
+    ui->tree_scrollArea->setWidget(tree_widget);
 }
 
 MainWindow::~MainWindow()
