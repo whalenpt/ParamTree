@@ -28,7 +28,7 @@ public:
     explicit TreeItem(const QString& name = "",const QVariant& val = QVariant(),
                       DataType dt = DataType::VAR,
                       const AuxMap& aux_map = AuxMap());
-    explicit TreeItem(const TreeItem& item);
+//    explicit TreeItem(const TreeItem& item);
     ~TreeItem();
     friend class TreeModel;
 

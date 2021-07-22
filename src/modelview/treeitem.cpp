@@ -16,21 +16,20 @@ TreeItem::TreeItem(const QString& name,const QVariant& val,DataType dt,
 {
 }
 
-TreeItem::TreeItem(const TreeItem& item) :
-    m_name(item.name()),
-    m_val(item.value()),
-    m_dtype(item.dtype()),
-    m_aux_map(item.m_aux_map),
-    m_child_items(),
-    m_parent(nullptr)
-{
-    for(auto child : item.m_child_items){
-        TreeItem* childptr = new TreeItem(*child);
-        childptr->m_parent = this;
-        m_child_items.push_back(childptr);
-    }
-}
-
+//TreeItem::TreeItem(const TreeItem& item) :
+//    m_name(item.name()),
+//    m_val(item.value()),
+//    m_dtype(item.dtype()),
+//    m_aux_map(item.m_aux_map),
+//    m_child_items(),
+//    m_parent(nullptr)
+//{
+//    for(auto child : item.m_child_items){
+//        TreeItem* childptr = new TreeItem(*child);
+//        childptr->m_parent = this;
+//        m_child_items.push_back(childptr);
+//    }
+//}
 
 TreeItem::~TreeItem()
 {

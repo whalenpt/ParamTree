@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QVariant>
 #include <QSettings>
+#include <memory>
 
 namespace optics{
 
@@ -22,8 +23,9 @@ variant_map default_map;
 void generateTree(TreeModel* model)
 {
     generateDefaultMap();
+//    auto sim_name = std::make_unique<TreeItem>("Simulation Name",default_map["Simulation Name"]);
     TreeItem* sim_name = new TreeItem("Simulation Name",default_map["Simulation Name"]);
-    TreeItem*cd = new TreeItem("Coordinate Dependency",default_map["Coordinate Dependency"],TreeItem::DataType::COMBO);
+    TreeItem* cd = new TreeItem("Coordinate Dependency",default_map["Coordinate Dependency"],TreeItem::DataType::COMBO);
     cd->setAux("RANGE",QStringList() << "RT" << "T");
     TreeItem* distance = new TreeItem("Travel distance",default_map["Travel distance"],TreeItem::DataType::SCIENTIFIC);
     TreeItem* num_threads = new TreeItem("Number of threads",default_map["Number of threads"]);
