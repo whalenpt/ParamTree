@@ -50,9 +50,8 @@ public:
     void setValue(const QVariant& value);
     void setAux(const QString& aux_name,const QVariant& aux_val);
     void setAux(const QString& aux_name,const QVector<QVariant>& aux_val);
-
-    void addItem(const TreeItem& item);
-    bool insertItem(const TreeItem& item,unsigned int position);
+    void addItem(TreeItem* item);
+    bool insertItem(TreeItem* item,unsigned int position);
 
     const TreeItem& getItem(const QString& name) const;
     const TreeItem& getItem(unsigned int position) const;
@@ -63,8 +62,6 @@ private:
     TreeItem* parent();
     TreeItem* child(unsigned int number);
 
-    void addChild(TreeItem* item);
-    bool insertChild(TreeItem* item,unsigned int position);
     bool insertChildren(unsigned int position,unsigned int count = 1);
     bool removeChildren(unsigned int position, unsigned int count = 1);
     QStringList pathkey() const;

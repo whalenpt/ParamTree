@@ -22,51 +22,51 @@ variant_map default_map;
 void generateTree(TreeModel* model)
 {
     generateDefaultMap();
-    TreeItem sim_name("Simulation Name",default_map["Simulation Name"]);
-    TreeItem cd("Coordinate Dependency",default_map["Coordinate Dependency"],TreeItem::DataType::COMBO);
-    cd.setAux("RANGE",QStringList() << "RT" << "T");
-    TreeItem distance("Travel distance",default_map["Travel distance"],TreeItem::DataType::SCIENTIFIC);
-    TreeItem num_threads("Number of threads",default_map["Number of threads"]);
-    num_threads.setAux("MINIMUM",1);
-    num_threads.setAux("MAXIMUM",16);
+    TreeItem* sim_name = new TreeItem("Simulation Name",default_map["Simulation Name"]);
+    TreeItem*cd = new TreeItem("Coordinate Dependency",default_map["Coordinate Dependency"],TreeItem::DataType::COMBO);
+    cd->setAux("RANGE",QStringList() << "RT" << "T");
+    TreeItem* distance = new TreeItem("Travel distance",default_map["Travel distance"],TreeItem::DataType::SCIENTIFIC);
+    TreeItem* num_threads = new TreeItem("Number of threads",default_map["Number of threads"]);
+    num_threads->setAux("MINIMUM",1);
+    num_threads->setAux("MAXIMUM",16);
 
     model->addItem(sim_name);
     model->addItem(cd);
     model->addItem(distance);
     model->addItem(num_threads);
 
-    TreeItem input_group("INPUT PULSE");
-    TreeItem intensity("Intensity",default_map["Intensity"],TreeItem::DataType::SCIENTIFIC);
-    input_group.addItem(intensity);
-    input_group.addItem(TreeItem("Carrier Wavelength",default_map["Carrier Wavelength"],TreeItem::DataType::SCIENTIFIC));
+    TreeItem* input_group = new TreeItem("INPUT PULSE");
+    TreeItem* intensity = new TreeItem("Intensity",default_map["Intensity"],TreeItem::DataType::SCIENTIFIC);
+    input_group->addItem(intensity);
+    input_group->addItem(new TreeItem("Carrier Wavelength",default_map["Carrier Wavelength"],TreeItem::DataType::SCIENTIFIC));
     model->addItem(input_group);
 
-    if(cd.value().toString() == "RT"){
+    if(cd->value().toString() == "RT"){
         loadInputT(model);
         loadInputR(model);
-    } else if(cd.value().toString() == "T")
+    } else if(cd->value().toString() == "T")
         loadInputT(model);
-    else if(cd.value().toString() == "R")
+    else if(cd->value().toString() == "R")
         loadInputR(model);
 
-    TreeItem medium("MEDIUM");
-    medium.addItem(TreeItem("Max Wavelength",default_map["Max Wavelength"],TreeItem::DataType::SCIENTIFIC));
-    medium.addItem(TreeItem("Min Frequency",default_map["Min Frequency"],TreeItem::DataType::SCIENTIFIC));
+    TreeItem* medium = new TreeItem("MEDIUM");
+    medium->addItem(new TreeItem("Max Wavelength",default_map["Max Wavelength"],TreeItem::DataType::SCIENTIFIC));
+    medium->addItem(new TreeItem("Min Frequency",default_map["Min Frequency"],TreeItem::DataType::SCIENTIFIC));
 
-    TreeItem n0("n0",default_map["n0"]);
-    n0.setAux("STEP SIZE",0.01);
-    medium.addItem(n0);
-    medium.addItem(TreeItem("n2",default_map["n2"],TreeItem::DataType::SCIENTIFIC));
-    TreeItem plas_gen("PlasmaGeneration",default_map["PlasmaGeneration"],TreeItem::DataType::BOOL);
-    medium.addItem(plas_gen);
+    TreeItem* n0 = new TreeItem("n0",default_map["n0"]);
+    n0->setAux("STEP SIZE",0.01);
+    medium->addItem(n0);
+    medium->addItem(new TreeItem("n2",default_map["n2"],TreeItem::DataType::SCIENTIFIC));
+    TreeItem* plas_gen = new TreeItem("PlasmaGeneration",default_map["PlasmaGeneration"],TreeItem::DataType::BOOL);
+    medium->addItem(plas_gen);
 
-    TreeItem plasma("PLASMA");
-    plasma.addItem(TreeItem("rhoN",default_map["rhoN"],TreeItem::DataType::SCIENTIFIC));
-    plasma.addItem(TreeItem("MultiphotonK",default_map["MultiphotonK"]));
-    plasma.addItem(TreeItem("SigmaK",default_map["SigmaK"],TreeItem::DataType::SCIENTIFIC));
-    plasma.addItem(TreeItem("CollisionTime",default_map["CollisionTime"],TreeItem::DataType::SCIENTIFIC));
-    plasma.addItem(TreeItem("Ui",default_map["Ui"]));
-    medium.addItem(plasma);
+    TreeItem* plasma = new TreeItem("PLASMA");
+    plasma->addItem(new TreeItem("rhoN",default_map["rhoN"],TreeItem::DataType::SCIENTIFIC));
+    plasma->addItem(new TreeItem("MultiphotonK",default_map["MultiphotonK"]));
+    plasma->addItem(new TreeItem("SigmaK",default_map["SigmaK"],TreeItem::DataType::SCIENTIFIC));
+    plasma->addItem(new TreeItem("CollisionTime",default_map["CollisionTime"],TreeItem::DataType::SCIENTIFIC));
+    plasma->addItem(new TreeItem("Ui",default_map["Ui"]));
+    medium->addItem(plasma);
 
     model->addItem(medium);
     QStringList plasgen_key,plas_key;
@@ -113,15 +113,15 @@ void loadPlasma(TreeModel* model){
     coltime_key << PLASMA_KEY << "CollisionTime";
     ui_key << PLASMA_KEY << "Ui";
 
-    TreeItem plasma("PLASMA");
-    plasma.addItem(TreeItem("rhoN",model->readFromSettings(settings,rho_key),
+    TreeItem* plasma = new TreeItem("PLASMA");
+    plasma->addItem(new TreeItem("rhoN",model->readFromSettings(settings,rho_key),
                             TreeItem::DataType::SCIENTIFIC));
-    plasma.addItem(TreeItem("MultiphotonK",model->readFromSettings(settings,multiK_key)));
-    plasma.addItem(TreeItem("SigmaK",model->readFromSettings(settings,sigK_key),
+    plasma->addItem(new TreeItem("MultiphotonK",model->readFromSettings(settings,multiK_key)));
+    plasma->addItem(new TreeItem("SigmaK",model->readFromSettings(settings,sigK_key),
                             TreeItem::DataType::SCIENTIFIC));
-    plasma.addItem(TreeItem("CollisionTime",model->readFromSettings(settings,coltime_key),
+    plasma->addItem(new TreeItem("CollisionTime",model->readFromSettings(settings,coltime_key),
                             TreeItem::DataType::SCIENTIFIC));
-    plasma.addItem(TreeItem("Ui",model->readFromSettings(settings,ui_key)));
+    plasma->addItem(new TreeItem("Ui",model->readFromSettings(settings,ui_key)));
     model->addItem(plasma,model->getIndex("MEDIUM"));
 }
 
@@ -161,9 +161,9 @@ void updateShapeT(const TreeItem& item,TreeModel* model)
 void loadSuperGaussT(TreeModel* model)
 {
     QSettings settings;
-    TreeItem superGaussM("m",model->readFromSettings(settings,INPUT_T_SUPERGAUSSM_KEY).toInt());
-    superGaussM.setAux("MINIMUM",1);
-    superGaussM.setAux("MAXIMUM",9);
+    TreeItem* superGaussM = new TreeItem("m",model->readFromSettings(settings,INPUT_T_SUPERGAUSSM_KEY).toInt());
+    superGaussM->setAux("MINIMUM",1);
+    superGaussM->setAux("MAXIMUM",9);
     model->addItem(superGaussM,model->getIndex(INPUT_T_KEY));
 }
 
@@ -194,18 +194,18 @@ void loadInputT(TreeModel* model)
     QVariant pw_var(model->readFromSettings(settings,QStringList() << INPUT_T_KEY << "Pulse Width"));
     QVariant shape_var(model->readFromSettings(settings,QStringList() << INPUT_T_KEY << "Shape"));
 
-    TreeItem tinput("T");
+    TreeItem* tinput = new TreeItem("T");
     if(pw_var.isNull())
         pw_var = default_map["Pulse Width"];
     if(shape_var.isNull())
         shape_var = default_map["T_Shape"];
 
-    TreeItem pw("Pulse Width",pw_var,TreeItem::DataType::SCIENTIFIC);
-    TreeItem shape("Shape",shape_var,TreeItem::DataType::COMBO);
-    shape.setAux("RANGE",QStringList() << "gauss" << "bessel" << "airy");
+    TreeItem* pw = new TreeItem("Pulse Width",pw_var,TreeItem::DataType::SCIENTIFIC);
+    TreeItem* shape = new TreeItem("Shape",shape_var,TreeItem::DataType::COMBO);
+    shape->setAux("RANGE",QStringList() << "gauss" << "bessel" << "airy");
 
-    tinput.addItem(shape);
-    tinput.addItem(pw);
+    tinput->addItem(shape);
+    tinput->addItem(pw);
     model->addItem(tinput,model->getIndex("INPUT PULSE"));
 }
 
@@ -215,18 +215,18 @@ void loadInputR(TreeModel* model){
     QSettings settings;
     QVariant bw_var(model->readFromSettings(settings,QStringList() << INPUT_R_KEY << "Beam Width"));
     QVariant shape_var(model->readFromSettings(settings,QStringList() << INPUT_R_KEY << "Shape"));
-    TreeItem rinput("R");
+    TreeItem* rinput = new TreeItem("R");
 
     if(bw_var.isNull())
         bw_var = default_map["Beam Width"];
     if(shape_var.isNull())
         shape_var = default_map["R_Shape"];
 
-    TreeItem bw("Beam Width",bw_var,TreeItem::DataType::SCIENTIFIC);
-    TreeItem beam_shape("Shape",shape_var,TreeItem::DataType::COMBO);
-    beam_shape.setAux("RANGE",QStringList() << "gauss" << "bessel" << "airy");
-    rinput.addItem(beam_shape);
-    rinput.addItem(bw);
+    TreeItem* bw = new TreeItem("Beam Width",bw_var,TreeItem::DataType::SCIENTIFIC);
+    TreeItem* beam_shape = new TreeItem("Shape",shape_var,TreeItem::DataType::COMBO);
+    beam_shape->setAux("RANGE",QStringList() << "gauss" << "bessel" << "airy");
+    rinput->addItem(beam_shape);
+    rinput->addItem(bw);
     model->addItem(rinput,model->getIndex("INPUT PULSE"));
 }
 

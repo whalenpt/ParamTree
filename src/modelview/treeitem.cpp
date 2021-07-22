@@ -108,7 +108,7 @@ void TreeItem::setValue(const QVariant &value)
     m_val = value;
 }
 
-bool TreeItem::insertChild(TreeItem* item,unsigned int position)
+bool TreeItem::insertItem(TreeItem* item,unsigned int position)
 {
     if(position > m_child_items.size())
         return false;
@@ -117,27 +117,10 @@ bool TreeItem::insertChild(TreeItem* item,unsigned int position)
     return true;
 }
 
-void TreeItem::addChild(TreeItem* item)
+void TreeItem::addItem(TreeItem* item)
 {
     item->m_parent = this;
     m_child_items.push_back(item);
-}
-
-bool TreeItem::insertItem(const TreeItem& item,unsigned int position)
-{
-    if(position > m_child_items.size())
-        return false;
-    TreeItem* child = new TreeItem(item);
-    child->m_parent = this;
-    m_child_items.insert(m_child_items.begin()+position,child);
-    return true;
-}
-
-void TreeItem::addItem(const TreeItem& item)
-{
-    TreeItem* child = new TreeItem(item);
-    child->m_parent = this;
-    m_child_items.push_back(child);
 }
 
 bool TreeItem::insertChildren(unsigned int position,unsigned int count)

@@ -208,7 +208,7 @@ void TreeModel::boolLink(const QModelIndex& index1,const QModelIndex& index2)
     }
 }
 
-QModelIndex TreeModel::addItem(const TreeItem& item,const QModelIndex& parent_index)
+QModelIndex TreeModel::addItem(TreeItem* item,const QModelIndex& parent_index)
 {
     TreeItem* parent = itemForIndex(parent_index);
     int position = parent->childCount();

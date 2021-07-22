@@ -53,8 +53,7 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     // returns index with column = 0 corresponding to the name of the name/value parameter
-    QModelIndex addItem(const TreeItem& item,const QModelIndex& parent = QModelIndex());
-
+    QModelIndex addItem(TreeItem* item,const QModelIndex& parent = QModelIndex());
 
     const TreeItem& getItem(const QString& key,const QModelIndex& parent = QModelIndex()) const;
     const TreeItem& getItem(const QStringList& key) const;
