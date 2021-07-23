@@ -206,20 +206,24 @@ void TreeModel::boolLink(const QModelIndex& index1,const QModelIndex& index2)
     }
 }
 
-QModelIndex TreeModel::addItem(TreeItem* item,const QModelIndex& parent_index)
+//QModelIndex TreeModel::addItem(TreeItem* item,const QModelIndex& parent_index)
+//{
+//    TreeItem* parent = itemForIndex(parent_index);
+//    int position = parent->childCount();
+//    beginInsertRows(parent_index,position,position);
+//    parent->insertItem(item,position);
+//    endInsertRows();
+//    return index(position,0,parent_index);
+//}
+
+QModelIndex TreeModel::addItem(std::unique_ptr<TreeItem> item,const QModelIndex& parent_index)
 {
     TreeItem* parent = itemForIndex(parent_index);
     int position = parent->childCount();
     beginInsertRows(parent_index,position,position);
-    parent->insertItem(item,position);
+    parent->insertItem(std::move(item),position);
     endInsertRows();
     return index(position,0,parent_index);
-}
-
-QModelIndex TreeModel::addItem(std::unique_ptr<TreeItem> item,const QModelIndex& parent_index)
-{
-    TreeItem* item_ptr = item.release();
-    return addItem(item_ptr,parent_index);
 }
 
 QModelIndex TreeModel::getIndex(const QString& name,const QModelIndex& parent) const
@@ -328,7 +332,7 @@ void TreeModel::saveToSettings(QSettings& settings, const TreeItem& item) const
         QString settings_key = data(index,Role::STRINGKEY).toString();
         settings.setValue(settings_key,item.value());
     } else{
-        for(auto child : item.m_child_items)
+        for(const auto& child : item.m_child_items)
             saveToSettings(settings,*child);
     }
 }
@@ -409,8 +413,8 @@ void TreeModel::writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item)
         writer.writeStartElement("TREENODE");
         writeNode(writer,*item);
     }
-    for(auto child : item->m_child_items){
-        writeTreeItem(writer,child);
+    for(const auto& child : item->m_child_items){
+        writeTreeItem(writer,child.get());
     }
     if(item != m_root_item.get())
         writer.writeEndElement();
@@ -478,10 +482,10 @@ void TreeModel::readTreeItems(QXmlStreamReader& reader,TreeItem* item)
     while(!reader.atEnd()){
         reader.readNext();
         if(reader.isStartElement()){
-            TreeItem* child = readNode(reader);
+            std::unique_ptr<TreeItem> child(readNode(reader));
             child->m_parent = item;
-            item->m_child_items.push_back(child);
-            item = child;
+            item->m_child_items.push_back(std::move(child));
+            item = child.get();
         } else if(reader.isEndElement()){
             item = item->m_parent;
         }

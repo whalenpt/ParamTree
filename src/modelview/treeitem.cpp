@@ -18,10 +18,10 @@ TreeItem::TreeItem(const QString& name,const QVariant& val,DataType dt,
 
 TreeItem::~TreeItem()
 {
-    for(auto it = m_child_items.begin(); it != m_child_items.end(); it++)
-    {
-        delete *it;
-    }
+//    for(auto it = m_child_items.begin(); it != m_child_items.end(); it++)
+//    {
+//        delete *it;
+//    }
     m_child_items.clear();
 }
 
@@ -33,7 +33,7 @@ TreeItem* TreeItem::parent()
 TreeItem* TreeItem::child(unsigned int number)
 {
     if(number < childCount())
-        return m_child_items.at(number);
+        return m_child_items.at(number).get();
     return nullptr;
 }
 
@@ -46,7 +46,7 @@ unsigned int TreeItem::childNumber() const
 {
     if(m_parent){
         for(unsigned int i = 0; i < m_parent->childCount(); i++){
-            if(m_parent->m_child_items.at(i) == this)
+            if(m_parent->m_child_items.at(i).get() == this)
                 return i;
         }
     }
@@ -94,30 +94,19 @@ void TreeItem::setValue(const QVariant &value)
 
 bool TreeItem::insertItem(std::unique_ptr<TreeItem> item,unsigned int position)
 {
-    TreeItem* item_ptr = item.release();
-    return insertItem(item_ptr,position);
-}
-
-bool TreeItem::insertItem(TreeItem* item,unsigned int position)
-{
     if(position > m_child_items.size())
         return false;
     item->m_parent = this;
-    m_child_items.insert(m_child_items.begin()+position,item);
+    m_child_items.insert(m_child_items.begin()+position,std::move(item));
     return true;
 }
 
 void TreeItem::addItem(std::unique_ptr<TreeItem> item)
 {
-    TreeItem* item_ptr = item.release();
-    addItem(item_ptr);
+    item->m_parent = this;
+    m_child_items.push_back(std::move(item));
 }
 
-void TreeItem::addItem(TreeItem* item)
-{
-    item->m_parent = this;
-    m_child_items.push_back(item);
-}
 
 bool TreeItem::insertChildren(unsigned int position,unsigned int count)
 {
@@ -126,9 +115,10 @@ bool TreeItem::insertChildren(unsigned int position,unsigned int count)
     if(position > m_child_items.size())
         return false;
     for(unsigned int i = 0; i < count; i++){
-        TreeItem* item = new TreeItem("",QVariant());
+        auto item = std::make_unique<TreeItem>("",QVariant());
+//        TreeItem* item = new TreeItem("",QVariant());
         item->m_parent = this;
-        m_child_items.insert(m_child_items.begin()+position,item);
+        m_child_items.insert(m_child_items.begin()+position,std::move(item));
     }
     return true;
 }
@@ -139,8 +129,8 @@ bool TreeItem::removeChildren(unsigned int position, unsigned int count)
         return false;
     if (position + count > m_child_items.size())
         return false;
-    for(auto it = m_child_items.begin()+position; it!=m_child_items.begin()+position+count; it++)
-        delete *it;
+//    for(auto it = m_child_items.begin()+position; it!=m_child_items.begin()+position+count; it++)
+//        delete *it;
     m_child_items.erase(m_child_items.begin()+position,m_child_items.begin()+position+count);
     return true;
 }
@@ -164,7 +154,7 @@ const std::vector<TreeItem*> TreeItem::getLeafs() const
     std::vector<TreeItem*> leaf_vector;
     for(unsigned int i = 0; i < m_child_items.size(); i++) {
         if(m_child_items.at(i)->isLeaf())
-            leaf_vector.push_back(m_child_items.at(i));
+            leaf_vector.push_back(m_child_items.at(i).get());
     }
     return leaf_vector;
 }
@@ -174,7 +164,7 @@ const std::vector<TreeItem*> TreeItem::getBranches() const
     std::vector<TreeItem*> branch_vector;
     for(unsigned int i = 0; i < m_child_items.size(); i++) {
         if(m_child_items.at(i)->isBranch())
-            branch_vector.push_back(m_child_items.at(i));
+            branch_vector.push_back(m_child_items.at(i).get());
     }
     return branch_vector;
 }

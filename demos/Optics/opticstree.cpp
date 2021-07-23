@@ -40,7 +40,7 @@ void generateTree(TreeModel* model)
     auto input_group = std::make_unique<TreeItem>("INPUT PULSE");
     auto intensity = std::make_unique<TreeItem>("Intensity",default_map["Intensity"],TreeItem::DataType::SCIENTIFIC);
     input_group->addItem(std::move(intensity));
-    input_group->addItem(new TreeItem("Carrier Wavelength",default_map["Carrier Wavelength"],TreeItem::DataType::SCIENTIFIC));
+    input_group->addItem(std::make_unique<TreeItem>("Carrier Wavelength",default_map["Carrier Wavelength"],TreeItem::DataType::SCIENTIFIC));
     model->addItem(std::move(input_group));
 
     if(model->getItem("Coordinate Dependency").value().toString() == "RT"){
@@ -52,22 +52,22 @@ void generateTree(TreeModel* model)
         loadInputR(model);
 
     auto medium = std::make_unique<TreeItem>("MEDIUM");
-    medium->addItem(new TreeItem("Max Wavelength",default_map["Max Wavelength"],TreeItem::DataType::SCIENTIFIC));
-    medium->addItem(new TreeItem("Min Frequency",default_map["Min Frequency"],TreeItem::DataType::SCIENTIFIC));
+    medium->addItem(std::make_unique<TreeItem>("Max Wavelength",default_map["Max Wavelength"],TreeItem::DataType::SCIENTIFIC));
+    medium->addItem(std::make_unique<TreeItem>("Min Frequency",default_map["Min Frequency"],TreeItem::DataType::SCIENTIFIC));
 
     auto n0 = std::make_unique<TreeItem>("n0",default_map["n0"]);
     n0->setAux("STEP SIZE",0.01);
     medium->addItem(std::move(n0));
-    medium->addItem(new TreeItem("n2",default_map["n2"],TreeItem::DataType::SCIENTIFIC));
+    medium->addItem(std::make_unique<TreeItem>("n2",default_map["n2"],TreeItem::DataType::SCIENTIFIC));
     auto plas_gen = std::make_unique<TreeItem>("PlasmaGeneration",default_map["PlasmaGeneration"],TreeItem::DataType::BOOL);
     medium->addItem(std::move(plas_gen));
 
     auto plasma = std::make_unique<TreeItem>("PLASMA");
-    plasma->addItem(new TreeItem("rhoN",default_map["rhoN"],TreeItem::DataType::SCIENTIFIC));
-    plasma->addItem(new TreeItem("MultiphotonK",default_map["MultiphotonK"]));
-    plasma->addItem(new TreeItem("SigmaK",default_map["SigmaK"],TreeItem::DataType::SCIENTIFIC));
-    plasma->addItem(new TreeItem("CollisionTime",default_map["CollisionTime"],TreeItem::DataType::SCIENTIFIC));
-    plasma->addItem(new TreeItem("Ui",default_map["Ui"]));
+    plasma->addItem(std::make_unique<TreeItem>("rhoN",default_map["rhoN"],TreeItem::DataType::SCIENTIFIC));
+    plasma->addItem(std::make_unique<TreeItem>("MultiphotonK",default_map["MultiphotonK"]));
+    plasma->addItem(std::make_unique<TreeItem>("SigmaK",default_map["SigmaK"],TreeItem::DataType::SCIENTIFIC));
+    plasma->addItem(std::make_unique<TreeItem>("CollisionTime",default_map["CollisionTime"],TreeItem::DataType::SCIENTIFIC));
+    plasma->addItem(std::make_unique<TreeItem>("Ui",default_map["Ui"]));
     medium->addItem(std::move(plasma));
     model->addItem(std::move(medium));
     QStringList plasgen_key,plas_key;
@@ -115,14 +115,14 @@ void loadPlasma(TreeModel* model){
     ui_key << PLASMA_KEY << "Ui";
 
     auto plasma = std::make_unique<TreeItem>("PLASMA");
-    plasma->addItem(new TreeItem("rhoN",model->readFromSettings(settings,rho_key),
+    plasma->addItem(std::make_unique<TreeItem>("rhoN",model->readFromSettings(settings,rho_key),
                             TreeItem::DataType::SCIENTIFIC));
-    plasma->addItem(new TreeItem("MultiphotonK",model->readFromSettings(settings,multiK_key)));
-    plasma->addItem(new TreeItem("SigmaK",model->readFromSettings(settings,sigK_key),
+    plasma->addItem(std::make_unique<TreeItem>("MultiphotonK",model->readFromSettings(settings,multiK_key)));
+    plasma->addItem(std::make_unique<TreeItem>("SigmaK",model->readFromSettings(settings,sigK_key),
                             TreeItem::DataType::SCIENTIFIC));
-    plasma->addItem(new TreeItem("CollisionTime",model->readFromSettings(settings,coltime_key),
+    plasma->addItem(std::make_unique<TreeItem>("CollisionTime",model->readFromSettings(settings,coltime_key),
                             TreeItem::DataType::SCIENTIFIC));
-    plasma->addItem(new TreeItem("Ui",model->readFromSettings(settings,ui_key)));
+    plasma->addItem(std::make_unique<TreeItem>("Ui",model->readFromSettings(settings,ui_key)));
     model->addItem(std::move(plasma),model->getIndex("MEDIUM"));
 }
 
