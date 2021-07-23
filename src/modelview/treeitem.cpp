@@ -96,7 +96,6 @@ bool TreeItem::insertItem(std::unique_ptr<TreeItem> item,unsigned int position)
 {
     TreeItem* item_ptr = item.release();
     return insertItem(item_ptr,position);
-
 }
 
 bool TreeItem::insertItem(TreeItem* item,unsigned int position)
@@ -111,7 +110,7 @@ bool TreeItem::insertItem(TreeItem* item,unsigned int position)
 void TreeItem::addItem(std::unique_ptr<TreeItem> item)
 {
     TreeItem* item_ptr = item.release();
-    return addItem(item_ptr);
+    addItem(item_ptr);
 }
 
 void TreeItem::addItem(TreeItem* item)
