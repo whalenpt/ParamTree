@@ -23,54 +23,53 @@ variant_map default_map;
 void generateTree(TreeModel* model)
 {
     generateDefaultMap();
-//    auto sim_name = std::make_unique<TreeItem>("Simulation Name",default_map["Simulation Name"]);
-    TreeItem* sim_name = new TreeItem("Simulation Name",default_map["Simulation Name"]);
-    TreeItem* cd = new TreeItem("Coordinate Dependency",default_map["Coordinate Dependency"],TreeItem::DataType::COMBO);
+    auto sim_name = std::make_unique<TreeItem>("Simulation Name",default_map["Simulation Name"]);
+    auto cd = std::make_unique<TreeItem>("Coordinate Dependency",default_map["Coordinate Dependency"],TreeItem::DataType::COMBO);
     cd->setAux("RANGE",QStringList() << "RT" << "T");
-    TreeItem* distance = new TreeItem("Travel distance",default_map["Travel distance"],TreeItem::DataType::SCIENTIFIC);
-    TreeItem* num_threads = new TreeItem("Number of threads",default_map["Number of threads"]);
+
+    auto distance = std::make_unique<TreeItem>("Travel distance",default_map["Travel distance"],TreeItem::DataType::SCIENTIFIC);
+    auto num_threads = std::make_unique<TreeItem>("Number of threads",default_map["Number of threads"]);
     num_threads->setAux("MINIMUM",1);
     num_threads->setAux("MAXIMUM",16);
 
-    model->addItem(sim_name);
-    model->addItem(cd);
-    model->addItem(distance);
-    model->addItem(num_threads);
+    model->addItem(std::move(sim_name));
+    model->addItem(std::move(cd));
+    model->addItem(std::move(distance));
+    model->addItem(std::move(num_threads));
 
-    TreeItem* input_group = new TreeItem("INPUT PULSE");
-    TreeItem* intensity = new TreeItem("Intensity",default_map["Intensity"],TreeItem::DataType::SCIENTIFIC);
-    input_group->addItem(intensity);
+    auto input_group = std::make_unique<TreeItem>("INPUT PULSE");
+    auto intensity = std::make_unique<TreeItem>("Intensity",default_map["Intensity"],TreeItem::DataType::SCIENTIFIC);
+    input_group->addItem(std::move(intensity));
     input_group->addItem(new TreeItem("Carrier Wavelength",default_map["Carrier Wavelength"],TreeItem::DataType::SCIENTIFIC));
-    model->addItem(input_group);
+    model->addItem(std::move(input_group));
 
-    if(cd->value().toString() == "RT"){
+    if(model->getItem("Coordinate Dependency").value().toString() == "RT"){
         loadInputT(model);
         loadInputR(model);
-    } else if(cd->value().toString() == "T")
+    } else if(model->getItem("Coordinate Dependency").value().toString() == "T")
         loadInputT(model);
-    else if(cd->value().toString() == "R")
+    else if(model->getItem("Coordinate Dependency").value().toString() == "R")
         loadInputR(model);
 
-    TreeItem* medium = new TreeItem("MEDIUM");
+    auto medium = std::make_unique<TreeItem>("MEDIUM");
     medium->addItem(new TreeItem("Max Wavelength",default_map["Max Wavelength"],TreeItem::DataType::SCIENTIFIC));
     medium->addItem(new TreeItem("Min Frequency",default_map["Min Frequency"],TreeItem::DataType::SCIENTIFIC));
 
-    TreeItem* n0 = new TreeItem("n0",default_map["n0"]);
+    auto n0 = std::make_unique<TreeItem>("n0",default_map["n0"]);
     n0->setAux("STEP SIZE",0.01);
-    medium->addItem(n0);
+    medium->addItem(std::move(n0));
     medium->addItem(new TreeItem("n2",default_map["n2"],TreeItem::DataType::SCIENTIFIC));
-    TreeItem* plas_gen = new TreeItem("PlasmaGeneration",default_map["PlasmaGeneration"],TreeItem::DataType::BOOL);
-    medium->addItem(plas_gen);
+    auto plas_gen = std::make_unique<TreeItem>("PlasmaGeneration",default_map["PlasmaGeneration"],TreeItem::DataType::BOOL);
+    medium->addItem(std::move(plas_gen));
 
-    TreeItem* plasma = new TreeItem("PLASMA");
+    auto plasma = std::make_unique<TreeItem>("PLASMA");
     plasma->addItem(new TreeItem("rhoN",default_map["rhoN"],TreeItem::DataType::SCIENTIFIC));
     plasma->addItem(new TreeItem("MultiphotonK",default_map["MultiphotonK"]));
     plasma->addItem(new TreeItem("SigmaK",default_map["SigmaK"],TreeItem::DataType::SCIENTIFIC));
     plasma->addItem(new TreeItem("CollisionTime",default_map["CollisionTime"],TreeItem::DataType::SCIENTIFIC));
     plasma->addItem(new TreeItem("Ui",default_map["Ui"]));
-    medium->addItem(plasma);
-
-    model->addItem(medium);
+    medium->addItem(std::move(plasma));
+    model->addItem(std::move(medium));
     QStringList plasgen_key,plas_key;
     plasgen_key << "MEDIUM" << "PlasmaGeneration";
 //    model->boolLink(model->getIndex(QStringList() << "MEDIUM" << "PlasmaGeneration")
@@ -115,7 +114,7 @@ void loadPlasma(TreeModel* model){
     coltime_key << PLASMA_KEY << "CollisionTime";
     ui_key << PLASMA_KEY << "Ui";
 
-    TreeItem* plasma = new TreeItem("PLASMA");
+    auto plasma = std::make_unique<TreeItem>("PLASMA");
     plasma->addItem(new TreeItem("rhoN",model->readFromSettings(settings,rho_key),
                             TreeItem::DataType::SCIENTIFIC));
     plasma->addItem(new TreeItem("MultiphotonK",model->readFromSettings(settings,multiK_key)));
@@ -124,7 +123,7 @@ void loadPlasma(TreeModel* model){
     plasma->addItem(new TreeItem("CollisionTime",model->readFromSettings(settings,coltime_key),
                             TreeItem::DataType::SCIENTIFIC));
     plasma->addItem(new TreeItem("Ui",model->readFromSettings(settings,ui_key)));
-    model->addItem(plasma,model->getIndex("MEDIUM"));
+    model->addItem(std::move(plasma),model->getIndex("MEDIUM"));
 }
 
 void updatePlasma(const TreeItem& item,TreeModel* model)
@@ -163,10 +162,10 @@ void updateShapeT(const TreeItem& item,TreeModel* model)
 void loadSuperGaussT(TreeModel* model)
 {
     QSettings settings;
-    TreeItem* superGaussM = new TreeItem("m",model->readFromSettings(settings,INPUT_T_SUPERGAUSSM_KEY).toInt());
+    auto superGaussM = std::make_unique<TreeItem>("m",model->readFromSettings(settings,INPUT_T_SUPERGAUSSM_KEY).toInt());
     superGaussM->setAux("MINIMUM",1);
     superGaussM->setAux("MAXIMUM",9);
-    model->addItem(superGaussM,model->getIndex(INPUT_T_KEY));
+    model->addItem(std::move(superGaussM),model->getIndex(INPUT_T_KEY));
 }
 
 //QSettings settings("PTW software","ParamTreeWidgetTest");
@@ -196,19 +195,19 @@ void loadInputT(TreeModel* model)
     QVariant pw_var(model->readFromSettings(settings,QStringList() << INPUT_T_KEY << "Pulse Width"));
     QVariant shape_var(model->readFromSettings(settings,QStringList() << INPUT_T_KEY << "Shape"));
 
-    TreeItem* tinput = new TreeItem("T");
+    auto tinput = std::make_unique<TreeItem>("T");
     if(pw_var.isNull())
         pw_var = default_map["Pulse Width"];
     if(shape_var.isNull())
         shape_var = default_map["T_Shape"];
 
-    TreeItem* pw = new TreeItem("Pulse Width",pw_var,TreeItem::DataType::SCIENTIFIC);
-    TreeItem* shape = new TreeItem("Shape",shape_var,TreeItem::DataType::COMBO);
+    auto pw = std::make_unique<TreeItem>("Pulse Width",pw_var,TreeItem::DataType::SCIENTIFIC);
+    auto shape = std::make_unique<TreeItem>("Shape",shape_var,TreeItem::DataType::COMBO);
     shape->setAux("RANGE",QStringList() << "gauss" << "bessel" << "airy");
 
-    tinput->addItem(shape);
-    tinput->addItem(pw);
-    model->addItem(tinput,model->getIndex("INPUT PULSE"));
+    tinput->addItem(std::move(shape));
+    tinput->addItem(std::move(pw));
+    model->addItem(std::move(tinput),model->getIndex("INPUT PULSE"));
 }
 
 
@@ -217,19 +216,19 @@ void loadInputR(TreeModel* model){
     QSettings settings;
     QVariant bw_var(model->readFromSettings(settings,QStringList() << INPUT_R_KEY << "Beam Width"));
     QVariant shape_var(model->readFromSettings(settings,QStringList() << INPUT_R_KEY << "Shape"));
-    TreeItem* rinput = new TreeItem("R");
+    auto rinput = std::make_unique<TreeItem>("R");
 
     if(bw_var.isNull())
         bw_var = default_map["Beam Width"];
     if(shape_var.isNull())
         shape_var = default_map["R_Shape"];
 
-    TreeItem* bw = new TreeItem("Beam Width",bw_var,TreeItem::DataType::SCIENTIFIC);
-    TreeItem* beam_shape = new TreeItem("Shape",shape_var,TreeItem::DataType::COMBO);
+    auto bw = std::make_unique<TreeItem>("Beam Width",bw_var,TreeItem::DataType::SCIENTIFIC);
+    auto beam_shape = std::make_unique<TreeItem>("Shape",shape_var,TreeItem::DataType::COMBO);
     beam_shape->setAux("RANGE",QStringList() << "gauss" << "bessel" << "airy");
-    rinput->addItem(beam_shape);
-    rinput->addItem(bw);
-    model->addItem(rinput,model->getIndex("INPUT PULSE"));
+    rinput->addItem(std::move(beam_shape));
+    rinput->addItem(std::move(bw));
+    model->addItem(std::move(rinput),model->getIndex("INPUT PULSE"));
 }
 
 

@@ -9,6 +9,7 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QSettings>
+#include <memory>
 
 namespace paramtree{
 
@@ -25,7 +26,7 @@ class PARAMTREE_EXPORT TreeModel : public QAbstractItemModel
 public:
     enum Role {KEY = Qt::UserRole+1,STRINGKEY,RANGE,DATATYPE,AUXMAP};
     explicit TreeModel(QObject *parent = nullptr);
-    ~TreeModel() override;
+    ~TreeModel() override {}
 
     // Header:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -54,6 +55,7 @@ public:
 
     // returns index with column = 0 corresponding to the name of the name/value parameter
     QModelIndex addItem(TreeItem* item,const QModelIndex& parent = QModelIndex());
+    QModelIndex addItem(std::unique_ptr<TreeItem> item,const QModelIndex& parent = QModelIndex());
 
     const TreeItem& getItem(const QString& key,const QModelIndex& parent = QModelIndex()) const;
     const TreeItem& getItem(const QStringList& key) const;
@@ -86,7 +88,7 @@ public:
     QVariant readFromSettings(QSettings& settings,const QStringList& key);
 
 private:
-    TreeItem* m_root_item;
+    std::unique_ptr<TreeItem> m_root_item;
     QSettings* m_settings;
 
     TreeItem* itemForIndex(const QModelIndex& index) const;

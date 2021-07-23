@@ -3,12 +3,11 @@
 
 #include "ParamTree/ParamTree_global.h"
 #include <exception>
+#include <memory>
 #include <QVariant>
 #include <QMap>
 #include <QStringList>
 #include <QModelIndex>
-
-
 
 namespace paramtree{
 
@@ -28,7 +27,6 @@ public:
     explicit TreeItem(const QString& name = "",const QVariant& val = QVariant(),
                       DataType dt = DataType::VAR,
                       const AuxMap& aux_map = AuxMap());
-//    explicit TreeItem(const TreeItem& item);
     ~TreeItem();
     friend class TreeModel;
 
@@ -50,7 +48,10 @@ public:
     void setValue(const QVariant& value);
     void setAux(const QString& aux_name,const QVariant& aux_val);
     void setAux(const QString& aux_name,const QVector<QVariant>& aux_val);
+
+    void addItem(std::unique_ptr<TreeItem> item);
     void addItem(TreeItem* item);
+    bool insertItem(std::unique_ptr<TreeItem> item,unsigned int position);
     bool insertItem(TreeItem* item,unsigned int position);
 
     const TreeItem& getItem(const QString& name) const;

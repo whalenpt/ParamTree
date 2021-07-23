@@ -16,21 +16,6 @@ TreeItem::TreeItem(const QString& name,const QVariant& val,DataType dt,
 {
 }
 
-//TreeItem::TreeItem(const TreeItem& item) :
-//    m_name(item.name()),
-//    m_val(item.value()),
-//    m_dtype(item.dtype()),
-//    m_aux_map(item.m_aux_map),
-//    m_child_items(),
-//    m_parent(nullptr)
-//{
-//    for(auto child : item.m_child_items){
-//        TreeItem* childptr = new TreeItem(*child);
-//        childptr->m_parent = this;
-//        m_child_items.push_back(childptr);
-//    }
-//}
-
 TreeItem::~TreeItem()
 {
     for(auto it = m_child_items.begin(); it != m_child_items.end(); it++)
@@ -107,6 +92,13 @@ void TreeItem::setValue(const QVariant &value)
     m_val = value;
 }
 
+bool TreeItem::insertItem(std::unique_ptr<TreeItem> item,unsigned int position)
+{
+    TreeItem* item_ptr = item.release();
+    return insertItem(item_ptr,position);
+
+}
+
 bool TreeItem::insertItem(TreeItem* item,unsigned int position)
 {
     if(position > m_child_items.size())
@@ -114,6 +106,12 @@ bool TreeItem::insertItem(TreeItem* item,unsigned int position)
     item->m_parent = this;
     m_child_items.insert(m_child_items.begin()+position,item);
     return true;
+}
+
+void TreeItem::addItem(std::unique_ptr<TreeItem> item)
+{
+    TreeItem* item_ptr = item.release();
+    return addItem(item_ptr);
 }
 
 void TreeItem::addItem(TreeItem* item)

@@ -17,15 +17,13 @@ const QString FILE_FORMAT("PARAMTREE");
 const QString VERSION_NUM("1.1");
 
 TreeModel::TreeModel(QObject *parent)
-    : QAbstractItemModel(parent)
+    : QAbstractItemModel(parent),
+    m_root_item(std::make_unique<TreeItem>(ROOT_NAME))
 {
-    m_root_item = new TreeItem(ROOT_NAME);
 }
 
-TreeModel::~TreeModel()
-{
-    delete m_root_item;
-}
+//TreeModel::~TreeModel() {
+//}
 
 TreeItem* TreeModel::itemForIndex(const QModelIndex& index) const
 {
@@ -34,7 +32,7 @@ TreeItem* TreeModel::itemForIndex(const QModelIndex& index) const
         if(item)
             return item;
     }
-    return m_root_item;
+    return m_root_item.get();
 }
 
 QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -65,7 +63,7 @@ QModelIndex TreeModel::parent(const QModelIndex &index) const
         return QModelIndex();
     TreeItem* child_item = itemForIndex(index);
     TreeItem* parent_item = child_item->parent();
-    if(parent_item == m_root_item)
+    if(parent_item == m_root_item.get())
         return QModelIndex();
     return createIndex(parent_item->childNumber(),0,parent_item);
 }
@@ -216,6 +214,12 @@ QModelIndex TreeModel::addItem(TreeItem* item,const QModelIndex& parent_index)
     parent->insertItem(item,position);
     endInsertRows();
     return index(position,0,parent_index);
+}
+
+QModelIndex TreeModel::addItem(std::unique_ptr<TreeItem> item,const QModelIndex& parent_index)
+{
+    TreeItem* item_ptr = item.release();
+    return addItem(item_ptr,parent_index);
 }
 
 QModelIndex TreeModel::getIndex(const QString& name,const QModelIndex& parent) const
@@ -393,7 +397,7 @@ bool TreeModel::save(const QString& filepath)
     writer.writeStartElement(FILE_FORMAT);
     writer.writeAttribute("VERSION",VERSION_NUM);
 
-    writeTreeItem(writer,m_root_item);
+    writeTreeItem(writer,m_root_item.get());
     writer.writeEndElement();
     writer.writeEndDocument();
     return true;
@@ -401,14 +405,14 @@ bool TreeModel::save(const QString& filepath)
 
 void TreeModel::writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item)
 {
-    if(item != m_root_item) {
+    if(item != m_root_item.get()) {
         writer.writeStartElement("TREENODE");
         writeNode(writer,*item);
     }
     for(auto child : item->m_child_items){
         writeTreeItem(writer,child);
     }
-    if(item != m_root_item)
+    if(item != m_root_item.get())
         writer.writeEndElement();
 }
 
@@ -461,7 +465,7 @@ bool TreeModel::load(const QString& filename)
     if(reader.attributes().value("VERSION") != VERSION_NUM)
         return false;
 
-    readTreeItems(reader,m_root_item);
+    readTreeItems(reader,m_root_item.get());
     beginResetModel();
     endResetModel();
 
@@ -530,8 +534,8 @@ void readAuxMap(QXmlStreamReader& reader,TreeItem* item)
 
 void TreeModel::clear()
 {
-    delete m_root_item;
-    m_root_item = new TreeItem(ROOT_NAME);
+    m_root_item.reset();
+    m_root_item = std::make_unique<TreeItem>(ROOT_NAME);
     beginResetModel();
     endResetModel();
 }
