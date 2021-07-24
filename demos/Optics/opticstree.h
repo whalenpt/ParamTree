@@ -17,11 +17,9 @@ namespace optics{
 
     void generateTree(TreeModel* model);
     void updateCD(const TreeItem& item,TreeModel* model);
-    void updatePlasma(const TreeItem& item,TreeModel* model);
     void updateShapeT(const TreeItem& item,TreeModel* model);
     void loadInputR(TreeModel* model);
     void loadInputT(TreeModel* model);
-    void loadPlasma(TreeModel* model);
     void loadSuperGaussT(TreeModel* model);
 }
 

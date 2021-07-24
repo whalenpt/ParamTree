@@ -105,44 +105,6 @@ void generateDefaultMap()
 }
 
 
-void loadPlasma(TreeModel* model){
-
-    QSettings settings;
-    QStringList rho_key,multiK_key,sigK_key,coltime_key,ui_key;
-    rho_key << PLASMA_KEY << "rhoN";
-    multiK_key << PLASMA_KEY << "MultiphotonK";
-    sigK_key << PLASMA_KEY << "SigmaK";
-    coltime_key << PLASMA_KEY << "CollisionTime";
-    ui_key << PLASMA_KEY << "Ui";
-
-    auto plasma = std::make_unique<TreeItem>("PLASMA");
-    plasma->addItem(std::make_unique<TreeItem>("rhoN",model->readFromSettings(settings,rho_key),
-                            TreeItem::DataType::SCIENTIFIC));
-    plasma->addItem(std::make_unique<TreeItem>("MultiphotonK",model->readFromSettings(settings,multiK_key)));
-    plasma->addItem(std::make_unique<TreeItem>("SigmaK",model->readFromSettings(settings,sigK_key),
-                            TreeItem::DataType::SCIENTIFIC));
-    plasma->addItem(std::make_unique<TreeItem>("CollisionTime",model->readFromSettings(settings,coltime_key),
-                            TreeItem::DataType::SCIENTIFIC));
-    plasma->addItem(std::make_unique<TreeItem>("Ui",model->readFromSettings(settings,ui_key)));
-    model->addItem(std::move(plasma),model->getIndex("MEDIUM"));
-}
-
-void updatePlasma(const TreeItem& item,TreeModel* model)
-{
-    if(item.value().toBool()){
-        if(!model->hasItem(PLASMA_KEY)){
-            loadPlasma(model);
-        }
-    } else {
-        if(model->hasItem(PLASMA_KEY)){
-            QModelIndex index = model->getIndex(PLASMA_KEY);
-            QSettings settings;
-            model->saveToSettings(settings,index);
-            model->removeRows(index.row(),1,index.parent());
-        }
-    }
-}
-
 void updateShapeT(const TreeItem& item,TreeModel* model)
 {
     QString val = item.value().toString();

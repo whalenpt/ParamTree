@@ -36,6 +36,20 @@ void TreeModel::boolLink(const QModelIndex& index,const QStringList& key)
     m_bool_links.push_back(std::make_pair(index,key));
 }
 
+void TreeModel::comboLink(const QModelIndex& index,const QStringList& key,\
+        const QString& combo_str)
+{
+    TreeItem* comboItem = itemForIndex(index);
+    if(comboItem->dtype() != TreeItem::DataType::COMBO){
+        throw std::invalid_argument("TreeModel::comboLink error, index must be\
+                a reference to a TreeItem with DataType of COMBO"); 
+    }
+    if(!hasItem(key))
+        throw std::invalid_argument("TreeModel::comboLink error, key is not found in model."); 
+    m_combo_links.push_back(std::make_pair(index,std::make_pair(key,combo_str)));
+}
+
+
 void TreeModel::linkUpdate(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
 {
     for(const auto& pair : m_bool_links){
