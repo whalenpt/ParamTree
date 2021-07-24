@@ -18,10 +18,6 @@ TreeItem::TreeItem(const QString& name,const QVariant& val,DataType dt,
 
 TreeItem::~TreeItem()
 {
-//    for(auto it = m_child_items.begin(); it != m_child_items.end(); it++)
-//    {
-//        delete *it;
-//    }
     m_child_items.clear();
 }
 
@@ -116,11 +112,19 @@ bool TreeItem::insertChildren(unsigned int position,unsigned int count)
         return false;
     for(unsigned int i = 0; i < count; i++){
         auto item = std::make_unique<TreeItem>("",QVariant());
-//        TreeItem* item = new TreeItem("",QVariant());
         item->m_parent = this;
         m_child_items.insert(m_child_items.begin()+position,std::move(item));
     }
     return true;
+}
+
+std::unique_ptr<TreeItem> TreeItem::pluckChild(unsigned int position)
+{
+    if (position > m_child_items.size())
+        return nullptr;
+    std::unique_ptr<TreeItem> item = std::move(m_child_items.at(position));
+    m_child_items.erase(m_child_items.begin()+position,m_child_items.begin()+position+1);
+    return item;
 }
 
 bool TreeItem::removeChildren(unsigned int position, unsigned int count)
@@ -129,8 +133,6 @@ bool TreeItem::removeChildren(unsigned int position, unsigned int count)
         return false;
     if (position + count > m_child_items.size())
         return false;
-//    for(auto it = m_child_items.begin()+position; it!=m_child_items.begin()+position+count; it++)
-//        delete *it;
     m_child_items.erase(m_child_items.begin()+position,m_child_items.begin()+position+count);
     return true;
 }

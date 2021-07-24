@@ -10,6 +10,7 @@
 #include <QXmlStreamReader>
 #include <QSettings>
 #include <memory>
+#include <utility>
 
 namespace paramtree{
 
@@ -78,7 +79,8 @@ public:
     QModelIndex getNameIndex(const QModelIndex& index) const;
     QStringList getKey(const QModelIndex& index) const;
 
-    void boolLink(const QModelIndex& index1,const QModelIndex& index2);
+    void boolLink(const QModelIndex& index,const QStringList& key);
+
     bool save(const QString& filename);
     bool load(const QString& filename);
     void clear();
@@ -87,15 +89,21 @@ public:
     void saveToSettings(QSettings& settings,const QModelIndex& index) const;
     QVariant readFromSettings(QSettings& settings,const QStringList& key);
 
+private slots:
+    void linkUpdate(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/);
+
 private:
     std::unique_ptr<TreeItem> m_root_item;
     QSettings* m_settings;
+    std::vector<std::pair<QModelIndex,QStringList>> m_bool_links;
+    std::map<QModelIndex,std::unique_ptr<TreeItem>> m_bool_links_map;
 
     TreeItem* itemForIndex(const QModelIndex& index) const;
     QModelIndex indexForPath(const QModelIndex& parent,const QStringList& path) const;
 
     void writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item);
     void readTreeItems(QXmlStreamReader& reader,TreeItem* item);
+
 };
 
 }

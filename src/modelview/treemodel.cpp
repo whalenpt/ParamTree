@@ -20,10 +20,49 @@ TreeModel::TreeModel(QObject *parent)
     : QAbstractItemModel(parent),
     m_root_item(std::make_unique<TreeItem>(ROOT_NAME))
 {
+    connect(this,&QAbstractItemModel::dataChanged,this,&TreeModel::linkUpdate);
 }
 
-//TreeModel::~TreeModel() {
-//}
+#include <QDebug>
+void TreeModel::boolLink(const QModelIndex& index,const QStringList& key)
+{
+    TreeItem* boolItem = itemForIndex(index);
+    if(boolItem->dtype() != TreeItem::DataType::BOOL){
+        throw std::invalid_argument("TreeModel::boolLink error, index must be\
+                a reference to a TreeItem with DataType of BOOL"); 
+    }
+    if(!hasItem(key))
+        throw std::invalid_argument("TreeModel::boolLink error, key is not found in model."); 
+    m_bool_links.push_back(std::make_pair(index,key));
+}
+
+void TreeModel::linkUpdate(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
+{
+    for(const auto& pair : m_bool_links){
+        // Index is a link
+        if(getValIndex(pair.first) == topLeft){
+ //           qDebug() << "BINGO";
+            bool link = getItem(pair.first).value().toBool();
+            QStringList key = pair.second;
+            // If bool_link is on but value isn't defined, then add to tree!
+            if(link && !hasItem(key)){
+                // qDebug() << "NEED TO ADD TO TREE!";
+                // Need to add the linked item to the correct parent index
+                addItem(std::move(m_bool_links_map.at(pair.first)),getIndex(key.first(key.size()-1)));
+                m_bool_links_map.erase(pair.first);
+            }
+            else if(!link && hasItem(key)){
+//                qDebug() << "NEED TO ERASE FROM TREE!";
+                QModelIndex keyindex = getIndex(key);
+                TreeItem* parent = itemForIndex(keyindex.parent());
+                beginRemoveRows(keyindex.parent(),keyindex.row(),keyindex.row());
+                std::unique_ptr<TreeItem> item = parent->pluckChild(keyindex.row());
+                m_bool_links_map.insert(std::pair(pair.first,std::move(item))); 
+                endRemoveRows();
+            }
+        }
+    }
+}
 
 TreeItem* TreeModel::itemForIndex(const QModelIndex& index) const
 {
@@ -194,27 +233,6 @@ bool TreeModel::removeRows(int row, int count, const QModelIndex &parent)
     endRemoveRows();
     return success;
 }
-
-#include <QDebug>
-void TreeModel::boolLink(const QModelIndex& index1,const QModelIndex& index2)
-{
-    TreeItem* boolItem = itemForIndex(index1);
-    qDebug() << boolItem->name();
-    if(boolItem->dtype() != TreeItem::DataType::BOOL){
-        throw std::invalid_argument("TreeModel::boolLink error, index1 must be\
-                a reference to a TreeItem with DataType of BOOL"); 
-    }
-}
-
-//QModelIndex TreeModel::addItem(TreeItem* item,const QModelIndex& parent_index)
-//{
-//    TreeItem* parent = itemForIndex(parent_index);
-//    int position = parent->childCount();
-//    beginInsertRows(parent_index,position,position);
-//    parent->insertItem(item,position);
-//    endInsertRows();
-//    return index(position,0,parent_index);
-//}
 
 QModelIndex TreeModel::addItem(std::unique_ptr<TreeItem> item,const QModelIndex& parent_index)
 {

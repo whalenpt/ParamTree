@@ -65,6 +65,7 @@ private:
 
     bool insertChildren(unsigned int position,unsigned int count = 1);
     bool removeChildren(unsigned int position, unsigned int count = 1);
+    std::unique_ptr<TreeItem> pluckChild(unsigned int position);
     QStringList pathkey() const;
 
     QString m_name;

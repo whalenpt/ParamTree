@@ -168,7 +168,7 @@ void MainWindow::dataChanged(const QModelIndex& topLeft,const QModelIndex& /*bot
     if(key == (QStringList() << "Coordinate Dependency")){
         optics::updateCD(item,m_model);
     } else if(key == (QStringList() << "MEDIUM" << "PlasmaGeneration")){
-        optics::updatePlasma(item,m_model);
+        //optics::updatePlasma(item,m_model);
     } else if (key == (QStringList() << "INPUT PULSE" << "T" << "Shape")) {
         optics::updateShapeT(item,m_model);
     }

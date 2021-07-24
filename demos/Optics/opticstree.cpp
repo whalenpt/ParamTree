@@ -16,6 +16,7 @@ const QStringList INPUT_T_KEY{"INPUT PULSE","T"};
 const QStringList INPUT_R_KEY{"INPUT PULSE","R"};
 const QStringList INPUT_XY_KEY{"INPUT PULSE","XY"};
 const QStringList PLASMA_KEY{"MEDIUM","PLASMA"};
+const QStringList PLASMA_GEN_KEY{"MEDIUM","PlasmaGeneration"};
 const QStringList INPUT_T_SUPERGAUSSM_KEY{"INPUT PULSE","T","m"};
 
 variant_map default_map;
@@ -70,9 +71,9 @@ void generateTree(TreeModel* model)
     plasma->addItem(std::make_unique<TreeItem>("Ui",default_map["Ui"]));
     medium->addItem(std::move(plasma));
     model->addItem(std::move(medium));
-    QStringList plasgen_key,plas_key;
-    plasgen_key << "MEDIUM" << "PlasmaGeneration";
-//    model->boolLink(model->getIndex(QStringList() << "MEDIUM" << "PlasmaGeneration")
+
+    QModelIndex plasmagen_index = model->getIndex(PLASMA_GEN_KEY);
+    model->boolLink(plasmagen_index,PLASMA_KEY);
 }
 
 void generateDefaultMap()
