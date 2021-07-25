@@ -96,11 +96,12 @@ private slots:
 private:
     void boolLinkUpdate(const QModelIndex& index);
     void comboLinkUpdate(const QModelIndex& index);
+
     std::unique_ptr<TreeItem> m_root_item;
     QSettings* m_settings;
 
     std::vector<std::pair<QModelIndex,QStringList>> m_bool_links;
-    std::map<QModelIndex,std::unique_ptr<TreeItem>> m_bool_links_map;
+    std::multimap<QModelIndex,std::unique_ptr<TreeItem>> m_bool_links_map;
 
     std::vector<std::pair<QModelIndex,std::pair<QStringList,QString>>> m_combo_links;
     std::multimap<QModelIndex,std::unique_ptr<TreeItem>> m_combo_links_map;

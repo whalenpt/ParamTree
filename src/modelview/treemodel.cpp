@@ -58,19 +58,27 @@ void TreeModel::comboLink(const QModelIndex& index,const QStringList& key,\
 
 void TreeModel::boolLinkUpdate(const QModelIndex& index)
 {
-    qDebug() << "BOOL LINK UPDATE CALLED";
+//    qDebug() << "BOOL LINK UPDATE CALLED";
     for(const auto& pair : m_bool_links){
         // Index is a link
         QModelIndex bool_index = getValIndex(pair.first);
+        QStringList key = pair.second;
         if(bool_index == index){
             bool link = getItem(bool_index).value().toBool();
-            QStringList key = pair.second;
-            // If bool_link is on but value isn't defined, then add to tree!
             if(link && !hasItem(key)){
-                // qDebug() << "NEED TO ADD TO TREE!";
-                // Need to add the linked item to the correct parent index
-                addItem(std::move(m_bool_links_map.at(bool_index)),getIndex(key.first(key.size()-1)));
-                m_bool_links_map.erase(bool_index);
+                auto itr1 = m_bool_links_map.lower_bound(bool_index);
+                auto itr2 = m_bool_links_map.upper_bound(bool_index);
+                while(itr1 != itr2){
+                    if(itr1->first == bool_index){
+                        QStringList mapkey = itr1->second->pathkey(false);
+                        if(mapkey == key){
+                            addItem(std::move(itr1->second),getIndex(key.first(key.size()-1)));
+                            m_bool_links_map.erase(itr1);
+                            break;
+                        }
+                    }
+                    itr1++;
+                }
             }
             else if(!link && hasItem(key)){
 //                qDebug() << "NEED TO ERASE FROM TREE!";
@@ -87,7 +95,7 @@ void TreeModel::boolLinkUpdate(const QModelIndex& index)
 
 void TreeModel::comboLinkUpdate(const QModelIndex& index)
 {
-    qDebug() << "COMBO LINK UPDATE CALLED";
+//    qDebug() << "COMBO LINK UPDATE CALLED";
     for(const auto& pair : m_combo_links){
         QModelIndex combo_index = getValIndex(pair.first);
         if(combo_index == index){

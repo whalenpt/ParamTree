@@ -68,10 +68,14 @@ void generateTree(TreeModel* model)
     plasma->addItem(std::make_unique<TreeItem>("CollisionTime",default_map["CollisionTime"],TreeItem::DataType::SCIENTIFIC));
     plasma->addItem(std::make_unique<TreeItem>("Ui",default_map["Ui"]));
     medium->addItem(std::move(plasma));
+    auto secondPlasArg = std::make_unique<TreeItem>("Plasma Name","Multiphoton");
+
+    medium->addItem(std::move(secondPlasArg));
     model->addItem(std::move(medium));
 
     QModelIndex plasmagen_index = model->getIndex(PLASMA_GEN_KEY);
     model->boolLink(plasmagen_index,PLASMA_KEY);
+    model->boolLink(plasmagen_index,QStringList() << "MEDIUM" << "Plasma Name");
     model->comboLink(model->getIndex(CD_KEY),INPUT_R_KEY,"RT");
 }
 
