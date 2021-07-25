@@ -101,7 +101,7 @@ private:
     std::map<QModelIndex,std::unique_ptr<TreeItem>> m_bool_links_map;
 
     std::vector<std::pair<QModelIndex,std::pair<QStringList,QString>>> m_combo_links;
-    std::map<QModelIndex,std::unique_ptr<TreeItem>> m_combo_links_map;
+    std::multimap<QModelIndex,std::unique_ptr<TreeItem>> m_combo_links_map;
 
     TreeItem* itemForIndex(const QModelIndex& index) const;
     QModelIndex indexForPath(const QModelIndex& parent,const QStringList& path) const;

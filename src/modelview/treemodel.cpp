@@ -92,8 +92,19 @@ void TreeModel::linkUpdate(const QModelIndex& topLeft,const QModelIndex& /*botto
             if(combostr == linkval && !hasItem(key)){
 //                qDebug() << "NEED TO ADD TO TREE!";
                 // Need to add the linked item to the correct parent index
-                addItem(std::move(m_combo_links_map.at(combo_index)),getIndex(key.first(key.size()-1)));
-                m_combo_links_map.erase(combo_index);
+                auto itr1 = m_combo_links_map.lower_bound(combo_index);
+                auto itr2 = m_combo_links_map.upper_bound(combo_index);
+                while(itr1 != itr2){
+                    if(itr1->first == combo_index){
+                        QStringList mapkey = itr1->second->pathkey().mid(1);
+                        if(mapkey == key){
+                            addItem(std::move(itr1->second),getIndex(key.first(key.size()-1)));
+                            m_combo_links_map.erase(itr1);
+                            break;
+                        }
+                    }
+                    itr1++;
+                }
             }
             else if((combostr != linkval) && hasItem(key)){
  //               qDebug() << "NEED TO ERASE FROM TREE!";
