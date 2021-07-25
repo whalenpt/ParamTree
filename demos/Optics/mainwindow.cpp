@@ -65,9 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->exitButton,&QPushButton::clicked,ui->actionExit,&QAction::triggered);
     connect(expand_action,&QAction::triggered,this,&MainWindow::expandAll);
     connect(collapse_action,&QAction::triggered,this,&MainWindow::collapseAll);
-    connect(m_model,&QAbstractItemModel::dataChanged,this,&MainWindow::dataChanged);
     connect(m_model,&QAbstractItemModel::rowsInserted,this,&MainWindow::expandAll);
-
     readSettings();
     optics::generateTree(m_model);
 //    if(!m_filename.isEmpty())
@@ -159,17 +157,6 @@ void MainWindow::collapseAll()
     m_treeview->collapseAll();
     for(int j = 0; j < m_model->columnCount(); j++)
         m_treeview->resizeColumnToContents(j);
-}
-
-void MainWindow::dataChanged(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
-{
-    QStringList key = m_model->data(topLeft,TreeModel::Role::KEY).toStringList();
-    const TreeItem& item = m_model->getItem(topLeft);
-    if(key == (QStringList() << "Coordinate Dependency")){
-        optics::updateCD(item,m_model);
-    } else if (key == (QStringList() << "INPUT PULSE" << "T" << "Shape")) {
-        optics::updateShapeT(item,m_model);
-    }
 }
 
 

@@ -28,7 +28,6 @@ private slots:
     bool fileSave();
     bool fileSaveAs();
     bool fileOpen();
-    void dataChanged(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/);
 
 private:
     Ui::MainWindow *ui;
@@ -42,7 +41,6 @@ private:
 
     void readSettings();
     void writeSettings();
-    void connectWidgets();
 
 };
 

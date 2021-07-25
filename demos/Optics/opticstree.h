@@ -4,26 +4,14 @@
 #include <map>
 #include <string>
 #include <QVariant>
+#include <ParamTree/TreeModel>
 
-
-namespace paramtree{
-    class TreeModel;
-    class TreeItem;
-}
 
 namespace optics{
-
     using namespace paramtree;
-
     void generateTree(TreeModel* model);
-    void updateCD(const TreeItem& item,TreeModel* model);
-    void updateShapeT(const TreeItem& item,TreeModel* model);
-    void loadInputR(TreeModel* model);
-    void loadInputT(TreeModel* model);
-    void loadSuperGaussT(TreeModel* model);
-}
-
-namespace optics{
+    void initInputR(TreeModel* model);
+    void initInputT(TreeModel* model);
     using variant_map = std::map<std::string,QVariant>;
     void generateDefaultMap();
 }

@@ -18,6 +18,8 @@ const QStringList INPUT_XY_KEY{"INPUT PULSE","XY"};
 const QStringList PLASMA_KEY{"MEDIUM","PLASMA"};
 const QStringList PLASMA_GEN_KEY{"MEDIUM","PlasmaGeneration"};
 const QStringList INPUT_T_SUPERGAUSSM_KEY{"INPUT PULSE","T","m"};
+const QStringList INPUT_T_SHAPE_KEY{"INPUT PULSE","T","Shape"};
+const QStringList CD_KEY{"Coordinate Dependency"};
 
 variant_map default_map;
 
@@ -44,13 +46,8 @@ void generateTree(TreeModel* model)
     input_group->addItem(std::make_unique<TreeItem>("Carrier Wavelength",default_map["Carrier Wavelength"],TreeItem::DataType::SCIENTIFIC));
     model->addItem(std::move(input_group));
 
-    if(model->getItem("Coordinate Dependency").value().toString() == "RT"){
-        loadInputT(model);
-        loadInputR(model);
-    } else if(model->getItem("Coordinate Dependency").value().toString() == "T")
-        loadInputT(model);
-    else if(model->getItem("Coordinate Dependency").value().toString() == "R")
-        loadInputR(model);
+    initInputT(model);
+    initInputR(model);
 
     auto medium = std::make_unique<TreeItem>("MEDIUM");
     medium->addItem(std::make_unique<TreeItem>("Max Wavelength",default_map["Max Wavelength"],TreeItem::DataType::SCIENTIFIC));
@@ -74,6 +71,7 @@ void generateTree(TreeModel* model)
 
     QModelIndex plasmagen_index = model->getIndex(PLASMA_GEN_KEY);
     model->boolLink(plasmagen_index,PLASMA_KEY);
+    model->comboLink(model->getIndex(CD_KEY),INPUT_R_KEY,"RT");
 }
 
 void generateDefaultMap()
@@ -104,97 +102,35 @@ void generateDefaultMap()
     default_map["Ui"] = 6.5;
 }
 
-
-void updateShapeT(const TreeItem& item,TreeModel* model)
+void initInputT(TreeModel* model)
 {
-    QString val = item.value().toString();
-    if(val == "supergauss"){
-        if(!model->hasItem(INPUT_T_SUPERGAUSSM_KEY)){
-            loadSuperGaussT(model);
-        }
-    } else{
-        if(model->hasItem(INPUT_T_SUPERGAUSSM_KEY)){
-            QModelIndex index = model->getIndex(INPUT_T_SUPERGAUSSM_KEY);
-            QSettings settings;
-            model->saveToSettings(settings,index);
-            model->removeRows(index.row(),1,index.parent());
-        }
-    }
-}
+    auto tinput = std::make_unique<TreeItem>("T");
+    auto pw = std::make_unique<TreeItem>("Pulse Width",default_map["Pulse Width"],TreeItem::DataType::SCIENTIFIC);
+    auto shape = std::make_unique<TreeItem>("Shape",default_map["T_Shape"],TreeItem::DataType::COMBO);
+    shape->setAux("RANGE",QStringList() << "gauss" << "bessel" << "airy" << "supergauss");
 
-void loadSuperGaussT(TreeModel* model)
-{
-    QSettings settings;
-    auto superGaussM = std::make_unique<TreeItem>("m",model->readFromSettings(settings,INPUT_T_SUPERGAUSSM_KEY).toInt());
+    auto superGaussM = std::make_unique<TreeItem>("m",1);
     superGaussM->setAux("MINIMUM",1);
     superGaussM->setAux("MAXIMUM",9);
-    model->addItem(std::move(superGaussM),model->getIndex(INPUT_T_KEY));
-}
-
-//QSettings settings("PTW software","ParamTreeWidgetTest");
-void updateCD(const TreeItem& item,TreeModel* model)
-{
-    QString cd_str = item.value().toString();
-    if(cd_str == "T"){
-        if(model->hasItem(INPUT_R_KEY)){
-            QModelIndex index = model->getIndex(INPUT_R_KEY);
-            QSettings settings;
-            model->saveToSettings(settings,index);
-            model->removeRows(index.row(),1,index.parent());
-        }
-        if(!model->hasItem(INPUT_T_KEY))
-            loadInputT(model);
-    } else if(cd_str == "RT"){
-        if(!model->hasItem(INPUT_T_KEY))
-            loadInputT(model);
-        if(!model->hasItem(INPUT_R_KEY))
-            loadInputR(model);
-    }
-}
-
-void loadInputT(TreeModel* model)
-{
-    QSettings settings;
-    QVariant pw_var(model->readFromSettings(settings,QStringList() << INPUT_T_KEY << "Pulse Width"));
-    QVariant shape_var(model->readFromSettings(settings,QStringList() << INPUT_T_KEY << "Shape"));
-
-    auto tinput = std::make_unique<TreeItem>("T");
-    if(pw_var.isNull())
-        pw_var = default_map["Pulse Width"];
-    if(shape_var.isNull())
-        shape_var = default_map["T_Shape"];
-
-    auto pw = std::make_unique<TreeItem>("Pulse Width",pw_var,TreeItem::DataType::SCIENTIFIC);
-    auto shape = std::make_unique<TreeItem>("Shape",shape_var,TreeItem::DataType::COMBO);
-    shape->setAux("RANGE",QStringList() << "gauss" << "bessel" << "airy");
 
     tinput->addItem(std::move(shape));
     tinput->addItem(std::move(pw));
+    tinput->addItem(std::move(superGaussM));
     model->addItem(std::move(tinput),model->getIndex("INPUT PULSE"));
+    model->comboLink(model->getIndex(INPUT_T_SHAPE_KEY),INPUT_T_SUPERGAUSSM_KEY,"supergauss");
 }
 
-
-void loadInputR(TreeModel* model){
-
-    QSettings settings;
-    QVariant bw_var(model->readFromSettings(settings,QStringList() << INPUT_R_KEY << "Beam Width"));
-    QVariant shape_var(model->readFromSettings(settings,QStringList() << INPUT_R_KEY << "Shape"));
+void initInputR(TreeModel* model)
+{
     auto rinput = std::make_unique<TreeItem>("R");
-
-    if(bw_var.isNull())
-        bw_var = default_map["Beam Width"];
-    if(shape_var.isNull())
-        shape_var = default_map["R_Shape"];
-
-    auto bw = std::make_unique<TreeItem>("Beam Width",bw_var,TreeItem::DataType::SCIENTIFIC);
-    auto beam_shape = std::make_unique<TreeItem>("Shape",shape_var,TreeItem::DataType::COMBO);
+    auto bw = std::make_unique<TreeItem>("Beam Width",default_map["Beam Width"],TreeItem::DataType::SCIENTIFIC);
+    auto beam_shape = std::make_unique<TreeItem>("Shape",default_map["R_Shape"],TreeItem::DataType::COMBO);
     beam_shape->setAux("RANGE",QStringList() << "gauss" << "bessel" << "airy");
     rinput->addItem(std::move(beam_shape));
     rinput->addItem(std::move(bw));
     model->addItem(std::move(rinput),model->getIndex("INPUT PULSE"));
 }
 
-
-
-
 }
+
+
