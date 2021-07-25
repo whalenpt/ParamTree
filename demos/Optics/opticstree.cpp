@@ -18,6 +18,7 @@ const QStringList INPUT_XY_KEY{"INPUT PULSE","XY"};
 const QStringList PLASMA_KEY{"MEDIUM","PLASMA"};
 const QStringList PLASMA_GEN_KEY{"MEDIUM","PlasmaGeneration"};
 const QStringList INPUT_T_SUPERGAUSSM_KEY{"INPUT PULSE","T","m"};
+const QStringList INPUT_T_SUPERGAUSSN_KEY{"INPUT PULSE","T","n"};
 const QStringList INPUT_T_SHAPE_KEY{"INPUT PULSE","T","Shape"};
 const QStringList CD_KEY{"Coordinate Dependency"};
 
@@ -112,12 +113,15 @@ void initInputT(TreeModel* model)
     auto superGaussM = std::make_unique<TreeItem>("m",1);
     superGaussM->setAux("MINIMUM",1);
     superGaussM->setAux("MAXIMUM",9);
+    auto superGaussN = std::make_unique<TreeItem>("n",2);
 
     tinput->addItem(std::move(shape));
     tinput->addItem(std::move(pw));
     tinput->addItem(std::move(superGaussM));
+    tinput->addItem(std::move(superGaussN));
     model->addItem(std::move(tinput),model->getIndex("INPUT PULSE"));
     model->comboLink(model->getIndex(INPUT_T_SHAPE_KEY),INPUT_T_SUPERGAUSSM_KEY,"supergauss");
+    model->comboLink(model->getIndex(INPUT_T_SHAPE_KEY),INPUT_T_SUPERGAUSSN_KEY,"supergauss");
 }
 
 void initInputR(TreeModel* model)
