@@ -179,7 +179,7 @@ bool TreeItem::isRoot() const
         return false;
 }
 
-QStringList TreeItem::pathkey() const
+QStringList TreeItem::pathkey(bool include_root) const
 {
     QStringList path(m_name);
     TreeItem* parent = m_parent;
@@ -187,7 +187,10 @@ QStringList TreeItem::pathkey() const
         path.prepend(parent->name());
         parent = parent->parent();
     }
-    return path;
+    if(include_root)
+        return path;
+    else
+        return path.mid(1);
 }
 
 void TreeItem::setAux(const QString& aux_name,const QVariant& aux_val)

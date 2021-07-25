@@ -94,6 +94,8 @@ private slots:
     void linkUpdate(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/);
 
 private:
+    void boolLinkUpdate(const QModelIndex& index);
+    void comboLinkUpdate(const QModelIndex& index);
     std::unique_ptr<TreeItem> m_root_item;
     QSettings* m_settings;
 

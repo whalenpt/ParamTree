@@ -56,13 +56,13 @@ void TreeModel::comboLink(const QModelIndex& index,const QStringList& key,\
 }
 
 
-void TreeModel::linkUpdate(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
+void TreeModel::boolLinkUpdate(const QModelIndex& index)
 {
-//      qDebug() << "LINK_UPDATE CALLED";
+    qDebug() << "BOOL LINK UPDATE CALLED";
     for(const auto& pair : m_bool_links){
         // Index is a link
         QModelIndex bool_index = getValIndex(pair.first);
-        if(bool_index == topLeft){
+        if(bool_index == index){
             bool link = getItem(bool_index).value().toBool();
             QStringList key = pair.second;
             // If bool_link is on but value isn't defined, then add to tree!
@@ -83,20 +83,24 @@ void TreeModel::linkUpdate(const QModelIndex& topLeft,const QModelIndex& /*botto
             }
         }
     }
+}
+
+void TreeModel::comboLinkUpdate(const QModelIndex& index)
+{
+    qDebug() << "COMBO LINK UPDATE CALLED";
     for(const auto& pair : m_combo_links){
         QModelIndex combo_index = getValIndex(pair.first);
-        if(combo_index == topLeft){
+        if(combo_index == index){
             QString linkval = getItem(pair.first).value().toString();
             auto& [key,combostr] = pair.second;
             // If combostr matches the link value
             if(combostr == linkval && !hasItem(key)){
 //                qDebug() << "NEED TO ADD TO TREE!";
-                // Need to add the linked item to the correct parent index
                 auto itr1 = m_combo_links_map.lower_bound(combo_index);
                 auto itr2 = m_combo_links_map.upper_bound(combo_index);
                 while(itr1 != itr2){
                     if(itr1->first == combo_index){
-                        QStringList mapkey = itr1->second->pathkey().mid(1);
+                        QStringList mapkey = itr1->second->pathkey(false);
                         if(mapkey == key){
                             addItem(std::move(itr1->second),getIndex(key.first(key.size()-1)));
                             m_combo_links_map.erase(itr1);
@@ -117,6 +121,13 @@ void TreeModel::linkUpdate(const QModelIndex& topLeft,const QModelIndex& /*botto
             }
         }
     }
+
+}
+
+void TreeModel::linkUpdate(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/)
+{
+    boolLinkUpdate(topLeft);
+    comboLinkUpdate(topLeft);
 }
 
 TreeItem* TreeModel::itemForIndex(const QModelIndex& index) const
@@ -189,10 +200,10 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
             return item->value();
         }
     } else if (role == Role::KEY){
-           // first item in pathkey is the root name, this is not part of the QStringList key
-        return QVariant(item->pathkey().mid(1));
+         // first item in pathkey is the root name if argument is not false 
+        return QVariant(item->pathkey(false));
     } else if (role == Role::STRINGKEY) 
-        return item->pathkey().mid(1).join("/");
+        return item->pathkey(false).join("/");
     else if (role == Role::DATATYPE) 
         return static_cast<int>(item->dtype());
     else if (role == Role::RANGE)
