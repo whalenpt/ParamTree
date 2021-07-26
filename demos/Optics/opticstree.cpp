@@ -33,8 +33,8 @@ void generateTree(TreeModel* model)
 
     auto distance = std::make_unique<TreeItem>("Travel distance",default_map["Travel distance"],TreeItem::DataType::SCIENTIFIC);
     auto num_threads = std::make_unique<TreeItem>("Number of threads",default_map["Number of threads"]);
-    num_threads->setAux("MINIMUM",1);
-    num_threads->setAux("MAXIMUM",16);
+    num_threads->setAux("MIN",1);
+    num_threads->setAux("MAX",16);
 
     model->addItem(std::move(sim_name));
     model->addItem(std::move(cd));
@@ -115,8 +115,8 @@ void initInputT(TreeModel* model)
     shape->setAux("RANGE",QStringList() << "gauss" << "bessel" << "airy" << "supergauss");
 
     auto superGaussM = std::make_unique<TreeItem>("m",1);
-    superGaussM->setAux("MINIMUM",1);
-    superGaussM->setAux("MAXIMUM",9);
+    superGaussM->setAux("MIN",1);
+    superGaussM->setAux("MAX",9);
     auto superGaussN = std::make_unique<TreeItem>("n",2);
 
     tinput->addItem(std::move(shape));

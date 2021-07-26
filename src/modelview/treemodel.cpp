@@ -23,7 +23,6 @@ TreeModel::TreeModel(QObject *parent)
     connect(this,&QAbstractItemModel::dataChanged,this,&TreeModel::linkUpdate);
 }
 
-#include <QDebug>
 void TreeModel::boolLink(const QModelIndex& index,const QStringList& key)
 {
     TreeItem* boolItem = itemForIndex(index);
@@ -216,6 +215,10 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
         return static_cast<int>(item->dtype());
     else if (role == Role::RANGE)
         return item->aux("RANGE");
+    else if (role == Role::MIN)
+        return item->aux("MIN");
+    else if (role == Role::MAX)
+        return item->aux("MAX");
     else if (role == Role::AUXMAP)
         return item->auxMap();
     else if (role == Qt::CheckStateRole && index.column() == 1 && \

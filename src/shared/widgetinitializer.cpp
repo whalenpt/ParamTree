@@ -25,11 +25,23 @@ namespace widgetinitializer{
                 QVector<QVariant> v = range.value<QVector<QVariant>>();
                 widget->setMinimum(v[0].toInt());
                 widget->setMaximum(v[1].toInt());
-            } else{
+            }         
+        } else if(aux_map.contains("MIN") || aux_map.contains("MAX")){
+            if(aux_map.contains("MIN")){
+                QVariant min = aux_map.value("MIN");
+                if(min.canConvert<int>())
+                    widget->setMinimum(min.toInt());
+            }
+            if(aux_map.contains("MAX")){
+                QVariant max = aux_map.value("MAX");
+                if(max.canConvert<int>())
+                    widget->setMaximum(max.toInt());
+            }
+        } else{
                 widget->setMinimum(0);
                 widget->setMaximum(std::max(10*start_val,100));
-            }
         }
+
         if(aux_map.contains("STEP SIZE"))
             widget->setSingleStep(aux_map.value("STEP SIZE").toInt());
         widget->setValue(start_val);
@@ -45,10 +57,21 @@ namespace widgetinitializer{
                 QVector<QVariant> v = range.value<QVector<QVariant>>();
                 widget->setMinimum(v[0].toDouble());
                 widget->setMaximum(v[1].toDouble());
-            } else{
-                widget->setMinimum(0.0);
-                widget->setMaximum(std::max(10.0*start_val,100.0));
+            } 
+        } else if(aux_map.contains("MIN") || aux_map.contains("MAX")){
+            if(aux_map.contains("MIN")){
+                QVariant min = aux_map.value("MIN");
+                if(min.canConvert<double>())
+                    widget->setMinimum(min.toDouble());
             }
+            if(aux_map.contains("MAX")){
+                QVariant max = aux_map.value("MAX");
+                if(max.canConvert<double>())
+                    widget->setMaximum(max.toDouble());
+            }
+        } else{
+            widget->setMinimum(0.0);
+            widget->setMaximum(std::max(10.0*start_val,100.0));
         }
         if(aux_map.contains("STEP SIZE"))
             widget->setSingleStep(aux_map.value("STEP SIZE").toDouble());

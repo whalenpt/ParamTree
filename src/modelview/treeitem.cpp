@@ -207,11 +207,11 @@ QVariant TreeItem::aux(const QString& aux_name) const
 {
     // Returns QVariant() if aux_name is not in the map
 
-    if(m_aux_map.contains(aux_name)){
+    if(hasAux(aux_name))
         return m_aux_map.value(aux_name);
-    }
-    throw std::runtime_error("TreeItem::getAux exception: failed to recognize \
-                              aux_name " + aux_name.toStdString());
+    return QVariant();
+//    throw std::runtime_error("TreeItem::getAux exception: failed to recognize \
+//                              aux_name " + aux_name.toStdString());
 }
 
 bool TreeItem::hasAux(const QString& aux_key) const

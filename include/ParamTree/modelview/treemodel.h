@@ -25,7 +25,7 @@ class PARAMTREE_EXPORT TreeModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    enum Role {KEY = Qt::UserRole+1,STRINGKEY,RANGE,DATATYPE,AUXMAP};
+    enum Role {KEY = Qt::UserRole+1,STRINGKEY,RANGE,DATATYPE,AUXMAP,MIN,MAX};
     explicit TreeModel(QObject *parent = nullptr);
     ~TreeModel() override {}
 
