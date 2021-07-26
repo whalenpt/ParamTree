@@ -68,9 +68,14 @@ void generateTree(TreeModel* model)
     plasma->addItem(std::make_unique<TreeItem>("CollisionTime",default_map["CollisionTime"],TreeItem::DataType::SCIENTIFIC));
     plasma->addItem(std::make_unique<TreeItem>("Ui",default_map["Ui"]));
     medium->addItem(std::move(plasma));
-    auto secondPlasArg = std::make_unique<TreeItem>("Plasma Name","Multiphoton");
 
-    medium->addItem(std::move(secondPlasArg));
+    //auto secondPlasArg = std::make_unique<TreeItem>("Plasma Name","Multiphoton");
+    //medium->addItem(std::move(secondPlasArg));
+
+    // Can add TreeItem objects instead of pointers 
+    auto secondPlasArg = TreeItem("Plasma Name","Multiphoton");
+    // Note this will COPY the contents of the scondPlasArg TreeItem into the parent TreeItem labeled medium
+    medium->addItem(secondPlasArg);
     model->addItem(std::move(medium));
 
     QModelIndex plasmagen_index = model->getIndex(PLASMA_GEN_KEY);
@@ -109,7 +114,8 @@ void generateDefaultMap()
 
 void initInputT(TreeModel* model)
 {
-    auto tinput = std::make_unique<TreeItem>("T");
+    // can create an object tinput instead of unique_ptr 
+    auto tinput = TreeItem("T");
     auto pw = std::make_unique<TreeItem>("Pulse Width",default_map["Pulse Width"],TreeItem::DataType::SCIENTIFIC);
     auto shape = std::make_unique<TreeItem>("Shape",default_map["T_Shape"],TreeItem::DataType::COMBO);
     shape->setAux("RANGE",QStringList() << "gauss" << "bessel" << "airy" << "supergauss");
@@ -119,11 +125,13 @@ void initInputT(TreeModel* model)
     superGaussM->setAux("MAX",9);
     auto superGaussN = std::make_unique<TreeItem>("n",2);
 
-    tinput->addItem(std::move(shape));
-    tinput->addItem(std::move(pw));
-    tinput->addItem(std::move(superGaussM));
-    tinput->addItem(std::move(superGaussN));
-    model->addItem(std::move(tinput),model->getIndex("INPUT PULSE"));
+    tinput.addItem(std::move(shape));
+    tinput.addItem(std::move(pw));
+    tinput.addItem(std::move(superGaussM));
+    tinput.addItem(std::move(superGaussN));
+
+    // tinput is COPIED into the model! Don't track the tinput object (access it through the model)
+    model->addItem(tinput,model->getIndex("INPUT PULSE"));
     model->comboLink(model->getIndex(INPUT_T_SHAPE_KEY),INPUT_T_SUPERGAUSSM_KEY,"supergauss");
     model->comboLink(model->getIndex(INPUT_T_SHAPE_KEY),INPUT_T_SUPERGAUSSN_KEY,"supergauss");
 }

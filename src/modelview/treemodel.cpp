@@ -321,6 +321,17 @@ QModelIndex TreeModel::addItem(std::unique_ptr<TreeItem> item,const QModelIndex&
     return index(position,0,parent_index);
 }
 
+
+QModelIndex TreeModel::addItem(const TreeItem& item,const QModelIndex& parent_index)
+{
+    TreeItem* parent = itemForIndex(parent_index);
+    int position = parent->childCount();
+    beginInsertRows(parent_index,position,position);
+    parent->insertItem(item,position);
+    endInsertRows();
+    return index(position,0,parent_index);
+}
+
 QModelIndex TreeModel::getIndex(const QString& name,const QModelIndex& parent) const
 {
     return indexForPath(parent,QStringList() << name);

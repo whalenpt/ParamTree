@@ -12,8 +12,24 @@ TreeItem::TreeItem(const QString& name,const QVariant& val,DataType dt,
     m_val(val),
     m_dtype(dt),
     m_aux_map(aux_map),
+    m_child_items(),
     m_parent(nullptr)
 {
+}
+
+TreeItem::TreeItem(const TreeItem& item) :
+    m_name(item.m_name),
+    m_val(item.m_val),
+    m_dtype(item.m_dtype),
+    m_aux_map(item.m_aux_map),
+    m_child_items(),
+    m_parent(item.m_parent)
+{
+    for(const auto& child : item.m_child_items){
+        std::unique_ptr<TreeItem> child_ptr = std::make_unique<TreeItem>(*child.get());
+        child_ptr->m_parent = this;
+        m_child_items.push_back(std::move(child_ptr));
+    }
 }
 
 TreeItem::~TreeItem()
@@ -97,12 +113,23 @@ bool TreeItem::insertItem(std::unique_ptr<TreeItem> item,unsigned int position)
     return true;
 }
 
+bool TreeItem::insertItem(const TreeItem& item,unsigned int position)
+{
+    std::unique_ptr<TreeItem> item_ptr = std::make_unique<TreeItem>(item);
+    return insertItem(std::move(item_ptr),position);
+}
+
 void TreeItem::addItem(std::unique_ptr<TreeItem> item)
 {
     item->m_parent = this;
     m_child_items.push_back(std::move(item));
 }
 
+void TreeItem::addItem(const TreeItem& item)
+{
+    std::unique_ptr<TreeItem> item_ptr = std::make_unique<TreeItem>(item);
+    addItem(std::move(item_ptr));
+}
 
 bool TreeItem::insertChildren(unsigned int position,unsigned int count)
 {
