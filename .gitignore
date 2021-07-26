@@ -12,6 +12,8 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+*.bat
+*.sh
 
 # Git
 .DS_Store
@@ -28,7 +30,6 @@ _deps
 *.so.*
 *.dll
 *.dylib
-*.sh
 *.swp
 
 # Qt-es
