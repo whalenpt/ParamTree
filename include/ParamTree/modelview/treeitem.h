@@ -28,6 +28,8 @@ public:
                       DataType dt = DataType::VAR,
                       const AuxMap& aux_map = AuxMap());
     explicit TreeItem(const TreeItem& item);
+    TreeItem& operator=(const TreeItem& item);
+
     ~TreeItem();
     friend class TreeModel;
 

@@ -32,6 +32,22 @@ TreeItem::TreeItem(const TreeItem& item) :
     }
 }
 
+TreeItem& TreeItem::operator=(const TreeItem& item)
+{
+    m_name = item.m_name;
+    m_val = item.m_val;
+    m_dtype = item.m_dtype;
+    m_aux_map = item.m_aux_map;
+    m_parent = item.m_parent;
+    m_child_items.clear();
+    for(const auto& child : item.m_child_items){
+        std::unique_ptr<TreeItem> child_ptr = std::make_unique<TreeItem>(*child.get());
+        child_ptr->m_parent = this;
+        m_child_items.push_back(std::move(child_ptr));
+    }
+    return *this;
+}
+
 TreeItem::~TreeItem()
 {
     m_child_items.clear();
