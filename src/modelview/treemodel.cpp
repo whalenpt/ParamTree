@@ -34,7 +34,7 @@ void TreeModel::boolLink(const QModelIndex& index,const QStringList& key)
         throw std::invalid_argument("TreeModel::boolLink error, key is not found in model."); 
 
     QModelIndex val_index = getValIndex(index);
-    m_bool_links.push_back(std::make_pair(val_index,key));
+    m_bool_links.push_back(std::make_pair(val_index,std::make_pair(key,getIndex(key).row())));
     linkUpdate(val_index,val_index);
 }
 
@@ -50,7 +50,7 @@ void TreeModel::comboLink(const QModelIndex& index,const QStringList& key,\
         throw std::invalid_argument("TreeModel::comboLink error, key is not found in model."); 
 
     QModelIndex val_index = getValIndex(index);
-    m_combo_links.push_back(std::make_pair(val_index,std::make_pair(key,combo_str)));
+    m_combo_links.push_back(std::make_pair(val_index,std::make_tuple(key,combo_str,getIndex(key).row())));
     linkUpdate(val_index,val_index);
 }
 
@@ -61,7 +61,7 @@ void TreeModel::boolLinkUpdate(const QModelIndex& index)
     for(const auto& pair : m_bool_links){
         // Index is a link
         QModelIndex bool_index = getValIndex(pair.first);
-        QStringList key = pair.second;
+        auto& [key,row] = pair.second;
         if(bool_index == index){
             bool link = getItem(bool_index).value().toBool();
             if(link && !hasItem(key)){
@@ -71,7 +71,7 @@ void TreeModel::boolLinkUpdate(const QModelIndex& index)
                     if(itr1->first == bool_index){
                         QStringList mapkey = itr1->second->pathkey(false);
                         if(mapkey == key){
-                            addItem(std::move(itr1->second),getIndex(key.first(key.size()-1)));
+                            insertItem(std::move(itr1->second),row,getIndex(key.first(key.size()-1)));
                             m_bool_links_map.erase(itr1);
                             break;
                         }
@@ -99,7 +99,7 @@ void TreeModel::comboLinkUpdate(const QModelIndex& index)
         QModelIndex combo_index = getValIndex(pair.first);
         if(combo_index == index){
             QString linkval = getItem(pair.first).value().toString();
-            auto& [key,combostr] = pair.second;
+            auto& [key,combostr,row] = pair.second;
             // If combostr matches the link value
             if(combostr == linkval && !hasItem(key)){
 //                qDebug() << "NEED TO ADD TO TREE!";
@@ -109,7 +109,7 @@ void TreeModel::comboLinkUpdate(const QModelIndex& index)
                     if(itr1->first == combo_index){
                         QStringList mapkey = itr1->second->pathkey(false);
                         if(mapkey == key){
-                            addItem(std::move(itr1->second),getIndex(key.first(key.size()-1)));
+                            insertItem(std::move(itr1->second),row,getIndex(key.first(key.size()-1)));
                             m_combo_links_map.erase(itr1);
                             break;
                         }
@@ -326,6 +326,29 @@ QModelIndex TreeModel::addItem(const TreeItem& item,const QModelIndex& parent_in
 {
     TreeItem* parent = itemForIndex(parent_index);
     int position = parent->childCount();
+    beginInsertRows(parent_index,position,position);
+    parent->insertItem(item,position);
+    endInsertRows();
+    return index(position,0,parent_index);
+}
+
+QModelIndex TreeModel::insertItem(std::unique_ptr<TreeItem> item,unsigned int position,const QModelIndex& parent_index)
+{
+    TreeItem* parent = itemForIndex(parent_index);
+    if(position > parent->childCount())
+        position = parent->childCount();
+    beginInsertRows(parent_index,position,position);
+    parent->insertItem(std::move(item),position);
+    endInsertRows();
+    return index(position,0,parent_index);
+}
+
+
+QModelIndex TreeModel::insertItem(const TreeItem& item,unsigned int position,const QModelIndex& parent_index)
+{
+    TreeItem* parent = itemForIndex(parent_index);
+    if(position > parent->childCount())
+        position = parent->childCount();
     beginInsertRows(parent_index,position,position);
     parent->insertItem(item,position);
     endInsertRows();

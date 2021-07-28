@@ -11,6 +11,7 @@
 #include <QSettings>
 #include <memory>
 #include <utility>
+#include <tuple>
 
 namespace paramtree{
 
@@ -58,6 +59,8 @@ public:
 //    QModelIndex addItem(TreeItem* item,const QModelIndex& parent = QModelIndex());
     QModelIndex addItem(std::unique_ptr<TreeItem> item,const QModelIndex& parent = QModelIndex());
     QModelIndex addItem(const TreeItem& item,const QModelIndex& parent = QModelIndex());
+    QModelIndex insertItem(std::unique_ptr<TreeItem> item,unsigned int position,const QModelIndex& parent = QModelIndex());
+    QModelIndex insertItem(const TreeItem& item,unsigned int position,const QModelIndex& parent = QModelIndex());
 
     const TreeItem& getItem(const QString& key,const QModelIndex& parent = QModelIndex()) const;
     const TreeItem& getItem(const QStringList& key) const;
@@ -101,10 +104,10 @@ private:
     std::unique_ptr<TreeItem> m_root_item;
     QSettings* m_settings;
 
-    std::vector<std::pair<QModelIndex,QStringList>> m_bool_links;
+    std::vector<std::pair<QModelIndex,std::pair<QStringList,int>>> m_bool_links;
     std::multimap<QModelIndex,std::unique_ptr<TreeItem>> m_bool_links_map;
 
-    std::vector<std::pair<QModelIndex,std::pair<QStringList,QString>>> m_combo_links;
+    std::vector<std::pair<QModelIndex,std::tuple<QStringList,QString,int>>> m_combo_links;
     std::multimap<QModelIndex,std::unique_ptr<TreeItem>> m_combo_links_map;
 
     TreeItem* itemForIndex(const QModelIndex& index) const;
