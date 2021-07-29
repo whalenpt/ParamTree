@@ -341,7 +341,7 @@ QModelIndex TreeModel::insertItem(std::unique_ptr<TreeItem> item,unsigned int po
     TreeItem* parent = itemForIndex(parent_index);
     if(position > parent->childCount())
         position = parent->childCount();
-    beginInsertRows(parent_index,position,position);
+    beginInsertRows(parent_index,parent->childCount(),parent->childCount());
     parent->insertItem(std::move(item),position);
     endInsertRows();
     return index(position,0,parent_index);
@@ -353,7 +353,8 @@ QModelIndex TreeModel::insertItem(const TreeItem& item,unsigned int position,con
     TreeItem* parent = itemForIndex(parent_index);
     if(position > parent->childCount())
         position = parent->childCount();
-    beginInsertRows(parent_index,position,position);
+    //beginInsertRows(parent_index,position,position);
+    beginInsertRows(parent_index,parent->childCount(),parent->childCount());
     parent->insertItem(item,position);
     endInsertRows();
     return index(position,0,parent_index);
