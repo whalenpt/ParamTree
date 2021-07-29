@@ -23,7 +23,7 @@ TreeModel::TreeModel(QObject *parent)
     connect(this,&QAbstractItemModel::dataChanged,this,&TreeModel::linkUpdate);
 }
 
-void TreeModel::boolLink(const QModelIndex& index,const QStringList& key)
+void TreeModel::boolLink(const QModelIndex& index,const QStringList& key,int position)
 {
     TreeItem* boolItem = itemForIndex(index);
     if(boolItem->dtype() != TreeItem::DataType::BOOL){
@@ -34,12 +34,14 @@ void TreeModel::boolLink(const QModelIndex& index,const QStringList& key)
         throw std::invalid_argument("TreeModel::boolLink error, key is not found in model."); 
 
     QModelIndex val_index = getValIndex(index);
-    m_bool_links.push_back(std::make_pair(val_index,std::make_pair(key,getIndex(key).row())));
+    if(position < 0)
+        position = getIndex(key).row();
+    m_bool_links.push_back(std::make_pair(val_index,std::make_pair(key,position)));
     linkUpdate(val_index,val_index);
 }
 
 void TreeModel::comboLink(const QModelIndex& index,const QStringList& key,\
-        const QString& combo_str)
+        const QString& combo_str,int position)
 {
     TreeItem* comboItem = itemForIndex(index);
     if(comboItem->dtype() != TreeItem::DataType::COMBO){
@@ -50,7 +52,9 @@ void TreeModel::comboLink(const QModelIndex& index,const QStringList& key,\
         throw std::invalid_argument("TreeModel::comboLink error, key is not found in model."); 
 
     QModelIndex val_index = getValIndex(index);
-    m_combo_links.push_back(std::make_pair(val_index,std::make_tuple(key,combo_str,getIndex(key).row())));
+    if(position < 0)
+        position = getIndex(key).row();
+    m_combo_links.push_back(std::make_pair(val_index,std::make_tuple(key,combo_str,position)));
     linkUpdate(val_index,val_index);
 }
 
@@ -337,7 +341,7 @@ QModelIndex TreeModel::insertItem(std::unique_ptr<TreeItem> item,unsigned int po
     TreeItem* parent = itemForIndex(parent_index);
     if(position > parent->childCount())
         position = parent->childCount();
-    beginInsertRows(parent_index,parent->childCount(),parent->childCount());
+    beginInsertRows(parent_index,position,position);
     parent->insertItem(std::move(item),position);
     endInsertRows();
     return index(position,0,parent_index);
@@ -349,8 +353,7 @@ QModelIndex TreeModel::insertItem(const TreeItem& item,unsigned int position,con
     TreeItem* parent = itemForIndex(parent_index);
     if(position > parent->childCount())
         position = parent->childCount();
-    //beginInsertRows(parent_index,position,position);
-    beginInsertRows(parent_index,parent->childCount(),parent->childCount());
+    beginInsertRows(parent_index,position,position);
     parent->insertItem(item,position);
     endInsertRows();
     return index(position,0,parent_index);
