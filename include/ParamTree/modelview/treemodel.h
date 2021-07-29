@@ -83,8 +83,8 @@ public:
     QModelIndex getNameIndex(const QModelIndex& index) const;
     QStringList getKey(const QModelIndex& index) const;
 
-    void boolLink(const QModelIndex& index,const QStringList& key,int position = -1);
-    void comboLink(const QModelIndex& index,const QStringList& key,const QString& combo_str,int position=-1);
+    void boolLink(const QModelIndex& index,const QStringList& key);
+    void comboLink(const QModelIndex& index,const QStringList& key,const QString& combo_str);
 
     bool save(const QString& filename);
     bool load(const QString& filename);

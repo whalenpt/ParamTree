@@ -23,7 +23,7 @@ TreeModel::TreeModel(QObject *parent)
     connect(this,&QAbstractItemModel::dataChanged,this,&TreeModel::linkUpdate);
 }
 
-void TreeModel::boolLink(const QModelIndex& index,const QStringList& key,int position)
+void TreeModel::boolLink(const QModelIndex& index,const QStringList& key)
 {
     TreeItem* boolItem = itemForIndex(index);
     if(boolItem->dtype() != TreeItem::DataType::BOOL){
@@ -34,14 +34,12 @@ void TreeModel::boolLink(const QModelIndex& index,const QStringList& key,int pos
         throw std::invalid_argument("TreeModel::boolLink error, key is not found in model."); 
 
     QModelIndex val_index = getValIndex(index);
-    if(position < 0)
-        position = getIndex(key).row();
-    m_bool_links.push_back(std::make_pair(val_index,std::make_pair(key,position)));
+    m_bool_links.push_back(std::make_pair(val_index,std::make_pair(key,getIndex(key).row())));
     linkUpdate(val_index,val_index);
 }
 
 void TreeModel::comboLink(const QModelIndex& index,const QStringList& key,\
-        const QString& combo_str,int position)
+        const QString& combo_str)
 {
     TreeItem* comboItem = itemForIndex(index);
     if(comboItem->dtype() != TreeItem::DataType::COMBO){
@@ -52,9 +50,7 @@ void TreeModel::comboLink(const QModelIndex& index,const QStringList& key,\
         throw std::invalid_argument("TreeModel::comboLink error, key is not found in model."); 
 
     QModelIndex val_index = getValIndex(index);
-    if(position < 0)
-        position = getIndex(key).row();
-    m_combo_links.push_back(std::make_pair(val_index,std::make_tuple(key,combo_str,position)));
+    m_combo_links.push_back(std::make_pair(val_index,std::make_tuple(key,combo_str,getIndex(key).row())));
     linkUpdate(val_index,val_index);
 }
 
