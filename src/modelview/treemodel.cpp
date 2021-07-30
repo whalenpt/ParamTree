@@ -30,7 +30,7 @@ void TreeModel::boolLink(const QModelIndex& index,const QStringList& key,int pos
         throw std::invalid_argument("TreeModel::boolLink error, index must be\
                 a reference to a TreeItem with DataType of BOOL"); 
     }
-    if(!hasItem(key))
+    if(!hasItem(key) && !hiddenItem(key))
         throw std::invalid_argument("TreeModel::boolLink error, key is not found in model."); 
 
     QModelIndex val_index = getValIndex(index);
@@ -48,7 +48,8 @@ void TreeModel::comboLink(const QModelIndex& index,const QStringList& key,\
         throw std::invalid_argument("TreeModel::comboLink error, index must be\
                 a reference to a TreeItem with DataType of COMBO"); 
     }
-    if(!hasItem(key))
+
+    if(!hasItem(key) && !hiddenItem(key))
         throw std::invalid_argument("TreeModel::comboLink error, key is not found in model."); 
 
     QModelIndex val_index = getValIndex(index);
@@ -383,10 +384,18 @@ bool TreeModel::hasItem(const QStringList& key) const
     return false;
 }
 
-bool TreeModel::contains(const QStringList& key) const
+bool TreeModel::hiddenItem(const QStringList& key) const
 {
-    return hasItem(key);
+    // Empty key corresponds to root index
+    if(key.isEmpty())
+        return true;
+    if(m_bool_links_map.find(key) != m_bool_links_map.end())
+        return true;
+    if(m_combo_links_map.find(key) != m_combo_links_map.end())
+        return true;
+    return false;
 }
+
 
 const TreeItem& TreeModel::getItem(const QModelIndex &index) const
 {

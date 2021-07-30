@@ -66,8 +66,8 @@ public:
     const TreeItem& getItem(const QStringList& key) const;
     const TreeItem& getItem(const QModelIndex& index) const;
     const TreeItem& getRootItem() const;
-    bool contains(const QStringList& key) const;
     bool hasItem(const QStringList& key) const;
+    bool hiddenItem(const QStringList& key) const;
 
     // Returns index
     QModelIndex getIndex(const TreeItem& item) const;
