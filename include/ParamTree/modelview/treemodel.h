@@ -104,10 +104,10 @@ private:
     std::unique_ptr<TreeItem> m_root_item;
     QSettings* m_settings;
 
-    std::vector<std::pair<QModelIndex,std::pair<QStringList,int>>> m_bool_links;
+    std::multimap<QModelIndex,std::pair<QStringList,int>> m_bool_links;
     std::map<QStringList,std::pair<std::unique_ptr<TreeItem>,int>> m_bool_links_map;
 
-    std::vector<std::pair<QModelIndex,std::tuple<QStringList,QString,int>>> m_combo_links;
+    std::multimap<QModelIndex,std::tuple<QStringList,QString,int>> m_combo_links;
     std::map<QStringList,std::pair<std::unique_ptr<TreeItem>,int>> m_combo_links_map;
 
     TreeItem* itemForIndex(const QModelIndex& index) const;
