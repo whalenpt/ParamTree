@@ -14,7 +14,9 @@ const QString ROOT_NAME("PARAMTREEMODEL");
 
 const QChar XML_SEPERATOR('|');
 const QString FILE_FORMAT("PARAMTREE");
-const QString VERSION_NUM("1.1");
+const QString VISIBLE_TREE("VISIBLE");
+const QString HIDDEN_TREE("HIDDEN");
+const QString VERSION_NUM("0.2");
 
 TreeModel::TreeModel(QObject *parent)
     : QAbstractItemModel(parent),
@@ -536,10 +538,52 @@ bool TreeModel::save(const QString& filepath)
     writer.writeStartElement(FILE_FORMAT);
     writer.writeAttribute("VERSION",VERSION_NUM);
 
+    writer.writeStartElement(VISIBLE_TREE);
     writeTreeItem(writer,m_root_item.get());
+    writer.writeEndElement();
+
+    writer.writeStartElement(HIDDEN_TREE);
+    writeHiddenItems(writer);
+    writer.writeEndElement();
+
     writer.writeEndElement();
     writer.writeEndDocument();
     return true;
+}
+
+void TreeModel::writeHiddenItems(QXmlStreamWriter& writer)
+{
+    for(auto const& [key,val] : m_bool_links_map){
+        writer.writeStartElement("BOOLHIDDEN");
+        writer.writeAttribute("KEY",key.join(XML_SEPERATOR));
+        writeTreeItem(writer,val.first.get());
+        writer.writeAttribute("ROW",QString::number(val.second));
+        writer.writeEndElement();
+    }
+    for(auto const& [key,val] : m_bool_links){
+        writer.writeStartElement("BOOLLINKS");
+        const auto& item = getItem(key);
+        writer.writeAttribute("LINKKEY",item.pathkey(false).join(XML_SEPERATOR));
+        writer.writeAttribute("CONNECTEDKEY",val.first.join(XML_SEPERATOR));
+        writer.writeAttribute("ROW",QString::number(val.second));
+        writer.writeEndElement();
+    }
+    for(auto const& [key,val] : m_combo_links_map){
+        writer.writeStartElement("COMBOHIDDEN");
+        writer.writeAttribute("KEY",key.join(XML_SEPERATOR));
+        writeTreeItem(writer,val.first.get());
+        writer.writeAttribute("ROW",QString::number(val.second));
+        writer.writeEndElement();
+    }
+    for(auto const& [key,val] : m_combo_links){
+        writer.writeStartElement("COMBOLINKS");
+        const auto& item = getItem(key);
+        writer.writeAttribute("LINKKEY",item.pathkey(false).join(XML_SEPERATOR));
+        writer.writeAttribute("CONNECTEDKEY",std::get<0>(val).join(XML_SEPERATOR));
+        writer.writeAttribute("COMBOSTR",std::get<1>(val));
+        writer.writeAttribute("ROW",QString::number(std::get<2>(val)));
+        writer.writeEndElement();
+    }
 }
 
 void TreeModel::writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item)

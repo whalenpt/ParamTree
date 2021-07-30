@@ -115,6 +115,7 @@ private:
 
     void writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item);
     void readTreeItems(QXmlStreamReader& reader,TreeItem* item);
+    void writeHiddenItems(QXmlStreamWriter& writer);
 
 };
 
