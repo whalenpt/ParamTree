@@ -24,9 +24,14 @@ class PARAMTREE_EXPORT TreeItem
 {
 public:
     enum class DataType {VAR,BRANCH,COMBO,SCIENTIFIC,BOOL};
-    explicit TreeItem(const QString& name = "",const QVariant& val = QVariant(),
+    explicit TreeItem(const QString& name = "",
+                      const QVariant& val = QVariant(),
                       DataType dt = DataType::VAR,
                       const AuxMap& aux_map = AuxMap());
+    explicit TreeItem(const QStringList& keyname,
+                      const QVariant& val = QVariant(),
+                      DataType dt = DataType::VAR,
+                      const AuxMap& aux_map = AuxMap()) : TreeItem(keyname.last(),val,dt,aux_map) {}
     explicit TreeItem(const TreeItem& item);
     TreeItem& operator=(const TreeItem& item);
 
