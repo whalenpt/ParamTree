@@ -20,6 +20,8 @@ void writeNode(QXmlStreamWriter& writer,const TreeItem& item);
 void writeAuxMap(QXmlStreamWriter& writer,const QMap<QString,QVariant>& map);
 std::unique_ptr<TreeItem> readNode(QXmlStreamReader& reader);
 void readAuxMap(QXmlStreamReader& reader,TreeItem* item);
+void streamDiagnostic(QXmlStreamReader& reader);
+QXmlStreamReader::TokenType eatStreamCharacters(QXmlStreamReader& reader);
 
 class PARAMTREE_EXPORT TreeModel : public QAbstractItemModel
 {
