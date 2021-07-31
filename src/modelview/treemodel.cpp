@@ -718,7 +718,14 @@ std::unique_ptr<TreeItem> TreeModel::readTreeItem(QXmlStreamReader& reader)
         // streamDiagnostic(reader);
         return std::move(item);
     }
-//
+    while(reader.tokenType() == QXmlStreamReader::StartElement){
+        std::unique_ptr<TreeItem> child = readTreeItem(reader);
+        child->m_parent = item.get();
+        item->m_child_items.push_back(std::move(child));
+    } 
+    if(reader.tokenType() == QXmlStreamReader::EndElement)
+        return std::move(item);
+
 //
 //    // Read until next start element (or if an EndElement is found, return the tree item)
 //    while(reader.readNext() != QXmlStreamReader::StartElement){
@@ -730,15 +737,16 @@ std::unique_ptr<TreeItem> TreeModel::readTreeItem(QXmlStreamReader& reader)
 //            return item;
 //        }
 //    } 
-    qDebug() << "Recursive Call. ReadTreeItem";
-    std::unique_ptr<TreeItem> child = readTreeItem(reader);
-    child->m_parent = item.get();
-    item->m_child_items.push_back(std::move(child));
-    while(reader.tokenType() == QXmlStreamReader::StartElement){
-        std::unique_ptr<TreeItem> child = readTreeItem(reader);
-        child->m_parent = item.get();
-        item->m_child_items.push_back(std::move(child));
-    }
+
+//    qDebug() << "Recursive Call. ReadTreeItem";
+//    std::unique_ptr<TreeItem> child = readTreeItem(reader);
+//    child->m_parent = item.get();
+//    item->m_child_items.push_back(std::move(child));
+//    while(reader.tokenType() == QXmlStreamReader::StartElement){
+//        std::unique_ptr<TreeItem> child = readTreeItem(reader);
+//        child->m_parent = item.get();
+//        item->m_child_items.push_back(std::move(child));
+//    }
 
     qDebug() << "EXITING readTreeItem";
     qDebug() << reader.name();
