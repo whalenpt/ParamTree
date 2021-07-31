@@ -18,7 +18,7 @@ namespace paramtree{
 //const QString ROOT_NAME = "Tree";
 void writeNode(QXmlStreamWriter& writer,const TreeItem& item);
 void writeAuxMap(QXmlStreamWriter& writer,const QMap<QString,QVariant>& map);
-TreeItem* readNode(QXmlStreamReader& reader);
+std::unique_ptr<TreeItem> readNode(QXmlStreamReader& reader);
 void readAuxMap(QXmlStreamReader& reader,TreeItem* item);
 
 class PARAMTREE_EXPORT TreeModel : public QAbstractItemModel
@@ -114,9 +114,9 @@ private:
     QModelIndex indexForPath(const QModelIndex& parent,const QStringList& path) const;
 
     void writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item);
-    void readTreeItems(QXmlStreamReader& reader,TreeItem* item);
+    std::unique_ptr<TreeItem> readTreeItem(QXmlStreamReader& reader);
     void writeHiddenItems(QXmlStreamWriter& writer);
-
+    void readHiddenItems(QXmlStreamReader& reader);
 };
 
 }
