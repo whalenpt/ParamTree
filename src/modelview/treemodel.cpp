@@ -723,49 +723,9 @@ std::unique_ptr<TreeItem> TreeModel::readTreeItem(QXmlStreamReader& reader)
         child->m_parent = item.get();
         item->m_child_items.push_back(std::move(child));
     } 
-    if(reader.tokenType() == QXmlStreamReader::EndElement)
-        return std::move(item);
-
-//
-//    // Read until next start element (or if an EndElement is found, return the tree item)
-//    while(reader.readNext() != QXmlStreamReader::StartElement){
-//        if(reader.isEndElement()){
-//            // Reader at an End Element, return item and move reader to next start element
-//            while(reader.tokenType() != QXmlStreamReader::StartElement && reader.tokenType() != QXmlStreamReader::Invalid){
-//                reader.readNext();
-//            }
-//            return item;
-//        }
-//    } 
-
-//    qDebug() << "Recursive Call. ReadTreeItem";
-//    std::unique_ptr<TreeItem> child = readTreeItem(reader);
-//    child->m_parent = item.get();
-//    item->m_child_items.push_back(std::move(child));
-//    while(reader.tokenType() == QXmlStreamReader::StartElement){
-//        std::unique_ptr<TreeItem> child = readTreeItem(reader);
-//        child->m_parent = item.get();
-//        item->m_child_items.push_back(std::move(child));
-//    }
-
-    qDebug() << "EXITING readTreeItem";
-    qDebug() << reader.name();
-    qDebug() << reader.attributes().value("NAME");
+    eatStreamCharacters(reader);
     return std::move(item);
 }
-
-//    while(!reader.atEnd()){
-//        if(reader.tokenType() == QXmlStreamReader::StartElement)
-//            qDebug() << "START ELEMENT: " << reader.name() << " - " << reader.attributes().value("NAME");
-//        else if(reader.tokenType() == QXmlStreamReader::Characters)
-//            qDebug() << "CHARACTER ELEMENT: " << reader.text();
-//        else if(reader.tokenType() == QXmlStreamReader::EndElement)
-//            qDebug() << "END ELEMENT: " << reader.name();
-//        else
-//            qDebug() << "OTHER KIND OF ELEMENT";
-//        reader.readNext();
-//    }
-
 
 QXmlStreamReader::TokenType eatStreamCharacters(QXmlStreamReader& reader)
 {
