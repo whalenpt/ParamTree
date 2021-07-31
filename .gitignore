@@ -14,6 +14,7 @@ CTestTestfile.cmake
 _deps
 *.bat
 *.sh
+*.xml
 
 # Git
 .DS_Store
