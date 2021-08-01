@@ -630,8 +630,6 @@ void TreeModel::writeHiddenItems(QXmlStreamWriter& writer)
 }
 
 
-
-
 bool TreeModel::load(const QString& filename)
 {
     if(filename.isEmpty())
@@ -651,19 +649,24 @@ bool TreeModel::load(const QString& filename)
     if(reader.attributes().value("VERSION") != VERSION_NUM)
         return false;
 
-    reader.readNextStartElement();
+    eatStreamCharacters(reader);
     qDebug() << "CHECK VISIBLE TREE";
-    if(reader.name() != VISIBLE_TREE)
+    if(!reader.isStartElement() || reader.name() != VISIBLE_TREE)
         return false;
-    reader.readNextStartElement();
-    
-    qDebug() << "READ VISIBLE TREE";
-    qDebug() << reader.name();
-    m_root_item = std::move(readTreeItem(reader));
+    eatStreamCharacters(reader);
 
-    qDebug() << "READ HIDDEN";
-    if(reader.name() != HIDDEN_TREE)
+    qDebug() << "READ VISIBLE TREE";
+    m_root_item = std::move(readTreeItem(reader));
+    if(!reader.isEndElement() || reader.name()!=VISIBLE_TREE)
         return false;
+
+    qDebug() << "END OF VISIBLE TREE";
+    eatStreamCharacters(reader);
+    qDebug() << "CHECK START OF HIDDEN ITEMS";
+    if(!reader.isStartElement() || reader.name() != HIDDEN_TREE)
+        return false;
+
+    qDebug() << "READ HIDDEN ITEMS";
     readHiddenItems(reader);
 
     qDebug() << "RESET MODEL";
@@ -682,7 +685,7 @@ void streamDiagnostic(QXmlStreamReader& reader)
 std::unique_ptr<TreeItem> TreeModel::readTreeItem(QXmlStreamReader& reader)
 { 
     // Reader is not at the start of an xml item, exit with nullptr 
-    qDebug() << "Enter readTreeItem: " << reader.attributes().value("NAME");
+//    qDebug() << "Enter readTreeItem: " << reader.attributes().value("NAME");
     if(!reader.isStartElement())
         return nullptr;
     // Reader is not at a tree item, exit with nullptr 
@@ -690,8 +693,6 @@ std::unique_ptr<TreeItem> TreeModel::readTreeItem(QXmlStreamReader& reader)
         return nullptr;
     if(reader.atEnd())
         return nullptr;
-
-    qDebug() << "Reader valid in readTreeItem.";
 
     QXmlStreamAttributes attributes(reader.attributes());
     QString name = attributes.value("NAME").toString();
@@ -703,15 +704,12 @@ std::unique_ptr<TreeItem> TreeModel::readTreeItem(QXmlStreamReader& reader)
     value.convert(meta_type);
     TreeItem::DataType dtype(static_cast<TreeItem::DataType>(dtypestr.toInt()));
     std::unique_ptr<TreeItem> item  = std::make_unique<TreeItem>(name,value,dtype);
-    qDebug() << "Added item : " << reader.attributes().value("NAME");
     QXmlStreamReader::TokenType ttype = eatStreamCharacters(reader);
     if(ttype == QXmlStreamReader::EndElement && reader.name() == QString("TREENODE")){
-        qDebug() << "END ELEMENT FOUND!";
         eatStreamCharacters(reader);
         return std::move(item);
     }
     if(ttype == QXmlStreamReader::StartElement && (reader.name() == QString("AUXMAP"))){
-        qDebug() << "AUXMAP FOUND!";
         readAuxMap(reader,item.get());
         // Reader at end of TREENODE
         eatStreamCharacters(reader);
@@ -742,7 +740,7 @@ void readAuxMap(QXmlStreamReader& reader,TreeItem* item)
 {
     eatStreamCharacters(reader);
     // Advance Reader from AUXMAP start element to AUXPARAM start element
-    while(reader.tokenType() == QXmlStreamReader::StartElement && reader.name() == QString("AUXPARAM")){
+    while(reader.isStartElement() && reader.name() == QString("AUXPARAM")){
         QXmlStreamAttributes attributes(reader.attributes());
         QString key(attributes.value("KEY").toString());
         QVariant val = QVariant(attributes.value("VALUE").toString());
@@ -755,9 +753,9 @@ void readAuxMap(QXmlStreamReader& reader,TreeItem* item)
             item->setAux(key,val);
         }
         // Read to end element for AUXPARAM
-        while(reader.tokenType() != QXmlStreamReader::EndElement)
+        //while(reader.tokenType() != QXmlStreamReader::EndElement)
+        while(!reader.isEndElement())
             reader.readNext();
-
         // Read until a new start element or the end element for AUXMAP
         while(reader.readNext()){
             if(reader.tokenType() == QXmlStreamReader::EndElement && (reader.name() == QString("AUXMAP")))
@@ -767,93 +765,12 @@ void readAuxMap(QXmlStreamReader& reader,TreeItem* item)
         }
     }
     eatStreamCharacters(reader);
-    // streamDiagnostic(reader);
     // Reader at end of TREENODE
-}
-
-//    if(reader.tokenType() == QXmlStreamReader::StartElement)
-//        qDebug() << "START ELEMENT: " << reader.name() << " - " << reader.attributes().value("NAME");
-//    else if(reader.tokenType() == QXmlStreamReader::Characters)
-//        qDebug() << "CHARACTER ELEMENT: " << reader.text();
-//    else if(reader.tokenType() == QXmlStreamReader::EndElement)
-//        qDebug() << "END ELEMENT: " << reader.name();
-//    else
-//        qDebug() << "OTHER KIND OF ELEMENT";
-
-
-
-//void TreeModel::readTreeItem(QXmlStreamReader& reader,TreeItem* item)
-//{
-//    QString item_name = item->name();
-//    qDebug() << "ENTER readTreeItem: " << item_name;
-//
-//    while(!reader.atEnd()){
-//        if(reader.tokenType() == QXmlStreamReader::StartElement)
-//            qDebug() << "START ELEMENT: " << reader.name() << " - " << reader.attributes().value("NAME");
-//        else if(reader.tokenType() == QXmlStreamReader::Characters)
-//            qDebug() << "CHARACTER ELEMENT: " << reader.text();
-//        else if(reader.tokenType() == QXmlStreamReader::EndElement)
-//            qDebug() << "END ELEMENT: " << reader.name();
-//        else
-//            qDebug() << "OTHER KIND OF ELEMENT";
-//        reader.readNext();
-//    }
-//    if(reader.atEnd())
-//        return;
-//
-//
-//    while(!(reader.isEndElement() && reader.attributes().value("NAME") == item_name)){
-//        qDebug() << reader.attributes().value("NAME");
-//        if(reader.isStartElement()){
-//            std::unique_ptr<TreeItem> child = std::move(readNode(reader));
-//            child->m_parent = item;
-//            item->m_child_items.push_back(std::move(child));
-//            if(reader.isEndElement())
-//                item = item->m_child_items.back().get();
-//        } else if(reader.isEndElement()){
-//            qDebug() << "IM AN END ELEMENT";
-//            item = item->m_parent;
-//        }
-//        reader.readNextStartElement();
-//        if(reader.atEnd())
-//            break;
-//    }
-    
-//    qDebug() << "EXIT readTreeItem";
-//    QXmlStreamAttributes attributes(reader.attributes());
-//    qDebug() << attributes.value("NAME");
-//    readTreeItem(reader,item);
-//}
-
-std::unique_ptr<TreeItem> readNode(QXmlStreamReader& reader)
-{
-    QXmlStreamAttributes attributes(reader.attributes());
-
-    QString name = attributes.value("NAME").toString();
-    QByteArray typestr(attributes.value("TYPENAME").toString().toUtf8());
-    QString dtypestr = attributes.value("NODETYPE").toString();
-    QString valuestr = attributes.value("VALUE").toString();
-
-    qDebug() << "READ NODE";
-    qDebug() << name;
-    qDebug() << attributes.value("TYPENAME").toString();
-    qDebug() << attributes.value("NODETYPE").toString();
-    qDebug() << valuestr;
-
-    QMetaType meta_type = QMetaType::fromName(typestr);
-    QVariant value(valuestr);
-    value.convert(meta_type);
-    TreeItem::DataType dtype(static_cast<TreeItem::DataType>(dtypestr.toInt()));
-    std::unique_ptr<TreeItem> child = std::make_unique<TreeItem>(name,value,dtype);
-
-    reader.readNextStartElement();
-    if(reader.name() == QString("AUXMAP"))
-        readAuxMap(reader,child.get());
-    return child;
 }
 
 void TreeModel::readHiddenItems(QXmlStreamReader& reader)
 {
+    streamDiagnostic(reader);
 //    if(reader.isStartElement()){
 //        if(reader.name() == QString("BOOLHIDDEN")){
 //            QXmlStreamAttributes attributes(reader.attributes());
