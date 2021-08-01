@@ -20,6 +20,7 @@ void writeNode(QXmlStreamWriter& writer,const TreeItem& item);
 void writeAuxMap(QXmlStreamWriter& writer,const QMap<QString,QVariant>& map);
 void readAuxMap(QXmlStreamReader& reader,TreeItem* item);
 void streamDiagnostic(QXmlStreamReader& reader);
+void streamHiddenDiagnostic(QXmlStreamReader& reader);
 QXmlStreamReader::TokenType eatStreamCharacters(QXmlStreamReader& reader);
 
 class PARAMTREE_EXPORT TreeModel : public QAbstractItemModel
@@ -116,8 +117,13 @@ private:
 
     void writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item);
     std::unique_ptr<TreeItem> readTreeItem(QXmlStreamReader& reader);
-    void writeHiddenItems(QXmlStreamWriter& writer);
-    void readHiddenItems(QXmlStreamReader& reader);
+    void writeLinkItems(QXmlStreamWriter& writer);
+    void writeBoolLinkItems(QXmlStreamWriter& writer);
+    void writeComboLinkItems(QXmlStreamWriter& writer);
+
+    void readLinkItems(QXmlStreamReader& reader);
+    void readBoolLinkItems(QXmlStreamReader& reader);
+    void readComboLinkItems(QXmlStreamReader& reader);
 };
 
 }

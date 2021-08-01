@@ -15,8 +15,34 @@ const QString ROOT_NAME("PARAMTREEMODEL");
 const QChar XML_SEPERATOR('|');
 const QString FILE_FORMAT("PARAMTREE");
 const QString VISIBLE_TREE("VISIBLETREE");
-const QString HIDDEN_TREE("HIDDENLINKITEMS");
-const QString VERSION_NUM("0.2");
+
+const QString LINK_ITEMS("LINKITEMS");
+const QString BOOLLINK_ITEMS("BOOLLINKITEMS");
+const QString BOOLLINKS("BOOLLINKS");
+const QString BOOLHIDDEN("BOOLHIDDEN");
+const QString BOOLLINK_NODE("BOOLLINK_NODE");
+const QString BOOLHIDDEN_NODE("BOOLHIDDENNODE");
+
+const QString COMBOLINK_ITEMS("COMBOLINKITEMS");
+const QString COMBOLINKS("COMBOLINKS");
+const QString COMBOHIDDEN("COMBOHIDDEN");
+const QString COMBOLINK_NODE("COMBOLINKNODE");
+const QString COMBOHIDDEN_NODE("COMBOHIDDENNODE");
+const QString VERSION_NUM("0.3");
+
+void streamDiagnostic(QXmlStreamReader& reader)
+{
+    qDebug() << reader.name();
+    qDebug() << reader.tokenString();
+    qDebug() << reader.attributes().value("NAME");
+}
+
+void streamHiddenDiagnostic(QXmlStreamReader& reader)
+{
+    qDebug() << reader.name();
+    qDebug() << reader.tokenString();
+    qDebug() << reader.attributes().value("KEY");
+}
 
 TreeModel::TreeModel(QObject *parent)
     : QAbstractItemModel(parent),
@@ -542,8 +568,8 @@ bool TreeModel::save(const QString& filepath)
     writeTreeItem(writer,m_root_item.get());
     writer.writeEndElement();
 
-    writer.writeStartElement(HIDDEN_TREE);
-    writeHiddenItems(writer);
+    writer.writeStartElement(LINK_ITEMS);
+    writeLinkItems(writer);
     writer.writeEndElement();
 
     writer.writeEndElement();
@@ -555,7 +581,6 @@ void TreeModel::writeTreeItem(QXmlStreamWriter& writer,const TreeItem* item)
 {
     if(item == nullptr)
         return;
-
     writer.writeStartElement("TREENODE");
     writeNode(writer,*item);
     for(const auto& child : item->m_child_items)
@@ -594,32 +619,47 @@ void writeAuxMap(QXmlStreamWriter& writer,const QMap<QString,QVariant>& map)
     writer.writeEndElement();
 }
 
-void TreeModel::writeHiddenItems(QXmlStreamWriter& writer)
+void TreeModel::writeLinkItems(QXmlStreamWriter& writer)
 {
-    for(auto const& [key,val] : m_bool_links_map){
-        writer.writeStartElement("BOOLHIDDEN");
-        writer.writeAttribute("KEY",key.join(XML_SEPERATOR));
-        writer.writeAttribute("ROW",QString::number(val.second));
-        writeTreeItem(writer,val.first.get());
-        writer.writeEndElement();
-    }
+    writeBoolLinkItems(writer);
+    writeComboLinkItems(writer);
+}
+
+void TreeModel::writeBoolLinkItems(QXmlStreamWriter& writer)
+{
+    writer.writeStartElement(BOOLLINK_ITEMS);
+
+    writer.writeStartElement(BOOLLINKS);
     for(auto const& [key,val] : m_bool_links){
-        writer.writeStartElement("BOOLLINKS");
+        writer.writeStartElement(BOOLLINK_NODE);
         const auto& item = getItem(key);
         writer.writeAttribute("LINKKEY",item.pathkey(false).join(XML_SEPERATOR));
         writer.writeAttribute("CONNECTEDKEY",val.first.join(XML_SEPERATOR));
         writer.writeAttribute("ROW",QString::number(val.second));
         writer.writeEndElement();
     }
-    for(auto const& [key,val] : m_combo_links_map){
-        writer.writeStartElement("COMBOHIDDEN");
+    writer.writeEndElement();
+
+    writer.writeStartElement(BOOLHIDDEN);
+    for(auto const& [key,val] : m_bool_links_map){
+        writer.writeStartElement(BOOLHIDDEN_NODE);
         writer.writeAttribute("KEY",key.join(XML_SEPERATOR));
         writer.writeAttribute("ROW",QString::number(val.second));
         writeTreeItem(writer,val.first.get());
         writer.writeEndElement();
     }
+    writer.writeEndElement();
+
+    writer.writeEndElement();
+}
+
+void TreeModel::writeComboLinkItems(QXmlStreamWriter& writer)
+{
+    writer.writeStartElement(COMBOLINK_ITEMS);
+
+    writer.writeStartElement(COMBOLINKS);
     for(auto const& [key,val] : m_combo_links){
-        writer.writeStartElement("COMBOLINKS");
+        writer.writeStartElement(COMBOLINK_NODE);
         const auto& item = getItem(key);
         writer.writeAttribute("LINKKEY",item.pathkey(false).join(XML_SEPERATOR));
         writer.writeAttribute("CONNECTEDKEY",std::get<0>(val).join(XML_SEPERATOR));
@@ -627,8 +667,20 @@ void TreeModel::writeHiddenItems(QXmlStreamWriter& writer)
         writer.writeAttribute("ROW",QString::number(std::get<2>(val)));
         writer.writeEndElement();
     }
-}
+    writer.writeEndElement();
 
+    writer.writeStartElement(COMBOHIDDEN);
+    for(auto const& [key,val] : m_combo_links_map){
+        writer.writeStartElement(COMBOHIDDEN_NODE);
+        writer.writeAttribute("KEY",key.join(XML_SEPERATOR));
+        writer.writeAttribute("ROW",QString::number(val.second));
+        writeTreeItem(writer,val.first.get());
+        writer.writeEndElement();
+    }
+    writer.writeEndElement();
+
+    writer.writeEndElement();
+}
 
 bool TreeModel::load(const QString& filename)
 {
@@ -657,17 +709,14 @@ bool TreeModel::load(const QString& filename)
 
     qDebug() << "READ VISIBLE TREE";
     m_root_item = std::move(readTreeItem(reader));
+    // Check that reader is at end of the visible tree
     if(!reader.isEndElement() || reader.name()!=VISIBLE_TREE)
         return false;
-
     qDebug() << "END OF VISIBLE TREE";
-    eatStreamCharacters(reader);
-    qDebug() << "CHECK START OF HIDDEN ITEMS";
-    if(!reader.isStartElement() || reader.name() != HIDDEN_TREE)
-        return false;
 
-    qDebug() << "READ HIDDEN ITEMS";
-    readHiddenItems(reader);
+    eatStreamCharacters(reader);
+    readLinkItems(reader);
+
 
     qDebug() << "RESET MODEL";
     beginResetModel();
@@ -675,17 +724,159 @@ bool TreeModel::load(const QString& filename)
     return true;
 }
 
-void streamDiagnostic(QXmlStreamReader& reader)
+void TreeModel::readLinkItems(QXmlStreamReader& reader)
 {
-    qDebug() << reader.name();
-    qDebug() << reader.tokenString();
-    qDebug() << reader.attributes().value("NAME");
+    streamDiagnostic(reader);
+    // Confirm that file is at beggining of saved LINK_ITEMS
+    if(!reader.isStartElement() || reader.name() != LINK_ITEMS)
+        return;
+
+    eatStreamCharacters(reader);
+    // Return if their are no LINK_ITEMS and nothing further needs to be done
+    if(reader.isEndElement() && reader.name() == LINK_ITEMS)
+        return;
+
+    while(reader.isStartElement()){
+        if(reader.name() == BOOLLINK_ITEMS)
+            readBoolLinkItems(reader);
+        else if(reader.name() == COMBOLINK_ITEMS)
+            readComboLinkItems(reader);
+        else
+            break;
+        eatStreamCharacters(reader);
+    }
+    if(!reader.isEndElement() || reader.name() != LINK_ITEMS)
+        return;
 }
+
+void TreeModel::readBoolLinkItems(QXmlStreamReader& reader)
+{
+    // Confirm that reader is at beggining of BOOLLINK_ITEMS
+    if(!reader.isStartElement() || reader.name() != BOOLLINK_ITEMS)
+        return;
+    eatStreamCharacters(reader);
+
+    // Check for bool links
+    if(!reader.isStartElement() || reader.name() != BOOLLINKS){
+        while(eatStreamCharacters(reader) != QXmlStreamReader::Invalid){
+            if(reader.isEndElement() && reader.name() == BOOLLINK_ITEMS)
+                return;
+        }
+    }
+    eatStreamCharacters(reader);
+    while(reader.isStartElement() && reader.name() == BOOLLINK_NODE)
+    {
+        qDebug() << "Read Bool link";
+        eatStreamCharacters(reader);
+        if(!reader.isEndElement() || reader.name() != BOOLLINK_NODE)
+            return;
+        eatStreamCharacters(reader);
+    }
+
+    if(!reader.isEndElement() || reader.name() != BOOLLINKS){
+        qDebug() << "Failed to read BOOLLINKS correctly.";
+        return;
+    }
+    eatStreamCharacters(reader);
+
+    // Check for bool hidden 
+    if(!reader.isStartElement() || reader.name() != BOOLHIDDEN){
+        while(!reader.isEndElement() && reader.name() != BOOLLINK_ITEMS)
+            eatStreamCharacters(reader);
+        qDebug() << "No BOOLHIDDEN found.";
+        return;
+    }
+
+    eatStreamCharacters(reader);
+    while(reader.isStartElement() && reader.name() == BOOLHIDDEN_NODE)
+    {
+        qDebug() << "Read Bool hidden";
+        eatStreamCharacters(reader);
+        if(!reader.isEndElement() || reader.name() != BOOLHIDDEN_NODE)
+            return;
+        eatStreamCharacters(reader);
+    }
+
+    if(!reader.isEndElement() || reader.name() != BOOLHIDDEN){
+        qDebug() << "Failed to read BOOLHIDDEN correctly.";
+        return;
+    }
+    eatStreamCharacters(reader);
+
+    // Confirm that reader is at end of BOOLLINK_ITEMS
+    if(!reader.isEndElement() || reader.name() != BOOLLINK_ITEMS){
+        qDebug() << "Failed to read BOOLLINKS_ITEMS correctly.";
+    }
+}
+
+void TreeModel::readComboLinkItems(QXmlStreamReader& reader)
+{
+    // Confirm that reader is at beggining of COMBOLINK_ITEMS
+    if(!reader.isStartElement() || reader.name() != COMBOLINK_ITEMS)
+        return;
+    eatStreamCharacters(reader);
+
+    // Check for combo links
+    if(!reader.isStartElement() || reader.name() != COMBOLINKS){
+        while(eatStreamCharacters(reader) != QXmlStreamReader::Invalid){
+            if(reader.isEndElement() && reader.name() == COMBOLINK_ITEMS)
+                return;
+        }
+    }
+    eatStreamCharacters(reader);
+    while(reader.isStartElement() && reader.name() == COMBOLINK_NODE)
+    {
+        qDebug() << "Read combo link";
+        eatStreamCharacters(reader);
+        if(!reader.isEndElement() || reader.name() != COMBOLINK_NODE)
+            return;
+        eatStreamCharacters(reader);
+    }
+
+    if(!reader.isEndElement() || reader.name() != COMBOLINKS){
+        qDebug() << "Failed to read COMBOLINKS correctly.";
+        return;
+    }
+    eatStreamCharacters(reader);
+
+    // Check for bool hidden 
+    if(!reader.isStartElement() || reader.name() != COMBOHIDDEN){
+        while(!reader.isEndElement() && reader.name() != COMBOLINK_ITEMS)
+            eatStreamCharacters(reader);
+        qDebug() << "No COMBOHIDDEN found.";
+        return;
+    }
+
+    eatStreamCharacters(reader);
+    while(reader.isStartElement() && reader.name() == COMBOHIDDEN_NODE)
+    {
+        qDebug() << "Read combo hidden";
+        eatStreamCharacters(reader);
+        std::unique_ptr<TreeItem> item = std::move(readTreeItem(reader));
+        if(!reader.isEndElement() || reader.name() != COMBOHIDDEN_NODE){
+            qDebug() << "Reader not at end element of combohidden_node!";
+            return;
+        }
+        eatStreamCharacters(reader);
+    }
+
+    if(!reader.isEndElement() || reader.name() != COMBOHIDDEN){
+        qDebug() << "Failed to read COMBOHIDDEN correctly.";
+        return;
+    }
+    eatStreamCharacters(reader);
+
+    // Confirm that reader is at end of COMBOLINK_ITEMS
+    if(!reader.isEndElement() || reader.name() != COMBOLINK_ITEMS){
+        qDebug() << "Failed to read COMBOLINK_ITEMS correctly.";
+    }
+}
+
 
 std::unique_ptr<TreeItem> TreeModel::readTreeItem(QXmlStreamReader& reader)
 { 
     // Check that reader is at the start element for a tree node
-    if(!reader.isStartElement() || !(reader.name() == QString("TREENODE")))
+    if(!reader.isStartElement() || reader.name() != QString("TREENODE"))
         return nullptr;
 
     QXmlStreamAttributes attributes(reader.attributes());
@@ -760,62 +951,6 @@ void readAuxMap(QXmlStreamReader& reader,TreeItem* item)
     }
     eatStreamCharacters(reader);
     // Reader at end of TREENODE
-}
-
-void TreeModel::readHiddenItems(QXmlStreamReader& reader)
-{
-    streamDiagnostic(reader);
-//    if(reader.isStartElement()){
-//        if(reader.name() == QString("BOOLHIDDEN")){
-//            QXmlStreamAttributes attributes(reader.attributes());
-//            QStringList key = attributes.value("KEY").split(XML_SEPERATOR);
-//            if(reader.isStartElement()){
-//                std::unique_ptr<TreeItem> child(readNode(reader));
-//                child->m_parent = item;
-//                item->m_child_items.push_back(std::move(child));
-//                item = child.get();
-//            } else if(reader.isEndElement()){
-//                item = item->m_parent;
-//            }
-//
-//            QString dtypestr = attributes.value("NODETYPE").toString();
-//            QString valuestr = attributes.value("VALUE").toString();
-//
-//        }
-//    }
-//    reader.readNextStartElement();
-//
-//    for(auto const& [key,val] : m_bool_links_map){
-//        writer.writeStartElement("BOOLHIDDEN");
-//        writer.writeAttribute("KEY",key.join(XML_SEPERATOR));
-//        writeTreeItem(writer,val.first.get());
-//        writer.writeAttribute("ROW",QString::number(val.second));
-//        writer.writeEndElement();
-//    }
-//    for(auto const& [key,val] : m_bool_links){
-//        writer.writeStartElement("BOOLLINKS");
-//        const auto& item = getItem(key);
-//        writer.writeAttribute("LINKKEY",item.pathkey(false).join(XML_SEPERATOR));
-//        writer.writeAttribute("CONNECTEDKEY",val.first.join(XML_SEPERATOR));
-//        writer.writeAttribute("ROW",QString::number(val.second));
-//        writer.writeEndElement();
-//    }
-//    for(auto const& [key,val] : m_combo_links_map){
-//        writer.writeStartElement("COMBOHIDDEN");
-//        writer.writeAttribute("KEY",key.join(XML_SEPERATOR));
-//        writeTreeItem(writer,val.first.get());
-//        writer.writeAttribute("ROW",QString::number(val.second));
-//        writer.writeEndElement();
-//    }
-//    for(auto const& [key,val] : m_combo_links){
-//        writer.writeStartElement("COMBOLINKS");
-//        const auto& item = getItem(key);
-//        writer.writeAttribute("LINKKEY",item.pathkey(false).join(XML_SEPERATOR));
-//        writer.writeAttribute("CONNECTEDKEY",std::get<0>(val).join(XML_SEPERATOR));
-//        writer.writeAttribute("COMBOSTR",std::get<1>(val));
-//        writer.writeAttribute("ROW",QString::number(std::get<2>(val)));
-//        writer.writeEndElement();
-//    }
 }
 
 
