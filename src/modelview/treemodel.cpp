@@ -684,14 +684,8 @@ void streamDiagnostic(QXmlStreamReader& reader)
 
 std::unique_ptr<TreeItem> TreeModel::readTreeItem(QXmlStreamReader& reader)
 { 
-    // Reader is not at the start of an xml item, exit with nullptr 
-//    qDebug() << "Enter readTreeItem: " << reader.attributes().value("NAME");
-    if(!reader.isStartElement())
-        return nullptr;
-    // Reader is not at a tree item, exit with nullptr 
-    if(!(reader.name() == QString("TREENODE")))
-        return nullptr;
-    if(reader.atEnd())
+    // Check that reader is at the start element for a tree node
+    if(!reader.isStartElement() || !(reader.name() == QString("TREENODE")))
         return nullptr;
 
     QXmlStreamAttributes attributes(reader.attributes());
