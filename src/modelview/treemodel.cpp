@@ -65,6 +65,7 @@ void TreeModel::boolLink(const QModelIndex& index,const QStringList& key,int pos
     if(position < 0)
         position = getIndex(key).row();
     m_bool_links.insert(std::make_pair(val_index,std::make_pair(key,position)));
+
     boolLinkUpdate(val_index);
 }
 
@@ -717,7 +718,6 @@ bool TreeModel::load(const QString& filename)
     eatStreamCharacters(reader);
     readLinkItems(reader);
 
-
     qDebug() << "RESET MODEL";
     beginResetModel();
     endResetModel();
@@ -767,6 +767,11 @@ void TreeModel::readBoolLinkItems(QXmlStreamReader& reader)
     while(reader.isStartElement() && reader.name() == BOOLLINK_NODE)
     {
         qDebug() << "Read Bool link";
+        QXmlStreamAttributes attributes(reader.attributes());
+        QStringList linkkey = attributes.value("LINKKEY").toString().split(XML_SEPERATOR);
+        QStringList connectkey = attributes.value("CONNECTEDKEY").toString().split(XML_SEPERATOR);
+        int row = attributes.value("ROW").toInt();
+
         eatStreamCharacters(reader);
         if(!reader.isEndElement() || reader.name() != BOOLLINK_NODE)
             return;
