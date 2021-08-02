@@ -16,8 +16,6 @@ TreeTabWidget::TreeTabWidget(TreeModel* model,const QStringList& key,QWidget* pa
     m_layout = new QVBoxLayout;
     m_tab_page = new TabPage(m_model,m_key);
     m_layout->addWidget(m_tab_page);
-    QSpacerItem* vspacer = new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::MinimumExpanding);
-    m_layout->addItem(vspacer);
 
     connect(m_model,&QAbstractItemModel::modelReset,this,
             &TreeTabWidget::reloadWidgets);

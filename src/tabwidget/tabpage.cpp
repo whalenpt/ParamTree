@@ -14,6 +14,7 @@
 #include <QLayout>
 #include <QStringList>
 #include <QDebug>
+#include <QSpacerItem>
 
 namespace paramtree{
 
@@ -45,6 +46,9 @@ void TabPage::generateLayout()
         const TreeItem& child = parent_item.getItem(i);
         addItem(child);
     }
+
+    QSpacerItem* vspacer = new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::MinimumExpanding);
+    m_layout->addItem(vspacer);
 }
 
 void TabPage::addItem(const TreeItem& item)
