@@ -771,6 +771,7 @@ void TreeModel::readBoolLinkItems(QXmlStreamReader& reader)
         QStringList linkkey = attributes.value("LINKKEY").toString().split(XML_SEPERATOR);
         QStringList connectkey = attributes.value("CONNECTEDKEY").toString().split(XML_SEPERATOR);
         int row = attributes.value("ROW").toInt();
+        m_bool_links.insert(std::make_pair(linkkey,std::make_pair(connectkey,row)));
 
         eatStreamCharacters(reader);
         if(!reader.isEndElement() || reader.name() != BOOLLINK_NODE)
@@ -795,8 +796,13 @@ void TreeModel::readBoolLinkItems(QXmlStreamReader& reader)
     eatStreamCharacters(reader);
     while(reader.isStartElement() && reader.name() == BOOLHIDDEN_NODE)
     {
-        qDebug() << "Read Bool hidden";
+        qDebug() << "Read bool hidden";
+        QXmlStreamAttributes attributes(reader.attributes());
+        QStringList key = attributes.value("KEY").toString().split(XML_SEPERATOR);
+        int row = attributes.value("ROW").toInt();
         eatStreamCharacters(reader);
+        std::unique_ptr<TreeItem> item = std::move(readTreeItem(reader));
+        m_bool_links_map.insert(std::make_pair(key,std::make_pair(std::move(item),row)));
         if(!reader.isEndElement() || reader.name() != BOOLHIDDEN_NODE)
             return;
         eatStreamCharacters(reader);
