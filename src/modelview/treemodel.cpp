@@ -709,7 +709,7 @@ bool TreeModel::load(const QString& filename)
     eatStreamCharacters(reader);
 
     qDebug() << "READ VISIBLE TREE";
-    m_root_item = std::move(readTreeItem(reader));
+    m_root_item = readTreeItem(reader);
     // Check that reader is at end of the visible tree
     if(!reader.isEndElement() || reader.name()!=VISIBLE_TREE)
         return false;
@@ -800,7 +800,7 @@ void TreeModel::readBoolLinkItems(QXmlStreamReader& reader)
         QStringList key = attributes.value("KEY").toString().split(XML_SEPERATOR);
         int row = attributes.value("ROW").toInt();
         eatStreamCharacters(reader);
-        std::unique_ptr<TreeItem> item = std::move(readTreeItem(reader));
+        std::unique_ptr<TreeItem> item = readTreeItem(reader);
         m_bool_links_map.insert(std::make_pair(key,std::make_pair(std::move(item),row)));
         if(!reader.isEndElement() || reader.name() != BOOLHIDDEN_NODE)
             return;
@@ -872,7 +872,7 @@ void TreeModel::readComboLinkItems(QXmlStreamReader& reader)
         QStringList key = attributes.value("KEY").toString().split(XML_SEPERATOR);
         int row = attributes.value("ROW").toInt();
         eatStreamCharacters(reader);
-        std::unique_ptr<TreeItem> item = std::move(readTreeItem(reader));
+        std::unique_ptr<TreeItem> item = readTreeItem(reader);
         m_combo_links_map.insert(std::make_pair(key,std::make_pair(std::move(item),row)));
 
         if(!reader.isEndElement() || reader.name() != COMBOHIDDEN_NODE){
@@ -914,14 +914,14 @@ std::unique_ptr<TreeItem> TreeModel::readTreeItem(QXmlStreamReader& reader)
     QXmlStreamReader::TokenType ttype = eatStreamCharacters(reader);
     if(ttype == QXmlStreamReader::EndElement && reader.name() == QString("TREENODE")){
         eatStreamCharacters(reader);
-        return std::move(item);
+        return item;
     }
     if(ttype == QXmlStreamReader::StartElement && (reader.name() == QString("AUXMAP"))){
         readAuxMap(reader,item.get());
         // Reader at end of TREENODE
         eatStreamCharacters(reader);
         // streamDiagnostic(reader);
-        return std::move(item);
+        return item;
     }
     while(reader.tokenType() == QXmlStreamReader::StartElement){
         std::unique_ptr<TreeItem> child = readTreeItem(reader);
@@ -929,7 +929,7 @@ std::unique_ptr<TreeItem> TreeModel::readTreeItem(QXmlStreamReader& reader)
         item->m_child_items.push_back(std::move(child));
     } 
     eatStreamCharacters(reader);
-    return std::move(item);
+    return item;
 }
 
 QXmlStreamReader::TokenType eatStreamCharacters(QXmlStreamReader& reader)
