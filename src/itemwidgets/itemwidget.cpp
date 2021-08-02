@@ -11,7 +11,7 @@ const int MIN_WIDGET_WIDTH = 40;
 //const int MAX_WIDGET_WIDTH = 240;
 const int MIN_LABEL_WIDTH = 30;
 const int WIDGET_HEIGHT = 20;
-const int LABEL_WIDGET_SPACING = 100;
+//const int LABEL_WIDGET_SPACING = 100;
 
 ItemWidget::ItemWidget(const TreeItem& item,QWidget* widget) :
     m_name(item.name())
