@@ -766,7 +766,7 @@ void TreeModel::readBoolLinkItems(QXmlStreamReader& reader)
     eatStreamCharacters(reader);
     while(reader.isStartElement() && reader.name() == BOOLLINK_NODE)
     {
-        qDebug() << "Read Bool link";
+        qDebug() << "Read bool link";
         QXmlStreamAttributes attributes(reader.attributes());
         QStringList linkkey = attributes.value("LINKKEY").toString().split(XML_SEPERATOR);
         QStringList connectkey = attributes.value("CONNECTEDKEY").toString().split(XML_SEPERATOR);
@@ -792,7 +792,6 @@ void TreeModel::readBoolLinkItems(QXmlStreamReader& reader)
         qDebug() << "No BOOLHIDDEN found.";
         return;
     }
-
     eatStreamCharacters(reader);
     while(reader.isStartElement() && reader.name() == BOOLHIDDEN_NODE)
     {
@@ -813,7 +812,6 @@ void TreeModel::readBoolLinkItems(QXmlStreamReader& reader)
         return;
     }
     eatStreamCharacters(reader);
-
     // Confirm that reader is at end of BOOLLINK_ITEMS
     if(!reader.isEndElement() || reader.name() != BOOLLINK_ITEMS){
         qDebug() << "Failed to read BOOLLINKS_ITEMS correctly.";
@@ -838,6 +836,13 @@ void TreeModel::readComboLinkItems(QXmlStreamReader& reader)
     while(reader.isStartElement() && reader.name() == COMBOLINK_NODE)
     {
         qDebug() << "Read combo link";
+        QXmlStreamAttributes attributes(reader.attributes());
+        QStringList linkkey = attributes.value("LINKKEY").toString().split(XML_SEPERATOR);
+        QStringList connectkey = attributes.value("CONNECTEDKEY").toString().split(XML_SEPERATOR);
+        QString combo_str = attributes.value("COMBOSTR").toString();
+        int row = attributes.value("ROW").toInt();
+        m_combo_links.insert(std::make_pair(linkkey,std::make_tuple(connectkey,combo_str,row)));
+
         eatStreamCharacters(reader);
         if(!reader.isEndElement() || reader.name() != COMBOLINK_NODE)
             return;
@@ -862,8 +867,14 @@ void TreeModel::readComboLinkItems(QXmlStreamReader& reader)
     while(reader.isStartElement() && reader.name() == COMBOHIDDEN_NODE)
     {
         qDebug() << "Read combo hidden";
+
+        QXmlStreamAttributes attributes(reader.attributes());
+        QStringList key = attributes.value("KEY").toString().split(XML_SEPERATOR);
+        int row = attributes.value("ROW").toInt();
         eatStreamCharacters(reader);
         std::unique_ptr<TreeItem> item = std::move(readTreeItem(reader));
+        m_combo_links_map.insert(std::make_pair(key,std::make_pair(std::move(item),row)));
+
         if(!reader.isEndElement() || reader.name() != COMBOHIDDEN_NODE){
             qDebug() << "Reader not at end element of combohidden_node!";
             return;
