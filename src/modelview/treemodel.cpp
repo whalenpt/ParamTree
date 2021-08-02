@@ -51,9 +51,10 @@ TreeModel::TreeModel(QObject *parent)
     connect(this,&QAbstractItemModel::dataChanged,this,&TreeModel::linkUpdate);
 }
 
-void TreeModel::boolLink(const QModelIndex& index,const QStringList& key,int position)
+void TreeModel::boolLink(const QStringList& linkkey,const QStringList& key,int position)
 {
-    TreeItem* boolItem = itemForIndex(index);
+    QModelIndex val_index = getValIndex(linkkey);
+    TreeItem* boolItem = itemForIndex(val_index);
     if(boolItem->dtype() != TreeItem::DataType::BOOL){
         throw std::invalid_argument("TreeModel::boolLink error, index must be\
                 a reference to a TreeItem with DataType of BOOL"); 
@@ -61,18 +62,17 @@ void TreeModel::boolLink(const QModelIndex& index,const QStringList& key,int pos
     if(!hasItem(key) && !hiddenItem(key))
         throw std::invalid_argument("TreeModel::boolLink error, key is not found in model."); 
 
-    QModelIndex val_index = getValIndex(index);
     if(position < 0)
         position = getIndex(key).row();
-    m_bool_links.insert(std::make_pair(val_index,std::make_pair(key,position)));
-
+    m_bool_links.insert(std::make_pair(linkkey,std::make_pair(key,position)));
     boolLinkUpdate(val_index);
 }
 
-void TreeModel::comboLink(const QModelIndex& index,const QStringList& key,\
+void TreeModel::comboLink(const QStringList& linkkey,const QStringList& key,\
         const QString& combo_str,int position)
 {
-    TreeItem* comboItem = itemForIndex(index);
+    QModelIndex val_index = getValIndex(linkkey);
+    TreeItem* comboItem = itemForIndex(val_index);
     if(comboItem->dtype() != TreeItem::DataType::COMBO){
         throw std::invalid_argument("TreeModel::comboLink error, index must be\
                 a reference to a TreeItem with DataType of COMBO"); 
@@ -81,21 +81,21 @@ void TreeModel::comboLink(const QModelIndex& index,const QStringList& key,\
     if(!hasItem(key) && !hiddenItem(key))
         throw std::invalid_argument("TreeModel::comboLink error, key is not found in model."); 
 
-    QModelIndex val_index = getValIndex(index);
     if(position < 0)
         position = getIndex(key).row();
-    m_combo_links.insert(std::make_pair(val_index,std::make_tuple(key,combo_str,position)));
+    m_combo_links.insert(std::make_pair(linkkey,std::make_tuple(key,combo_str,position)));
     comboLinkUpdate(val_index);
 }
 
 void TreeModel::boolLinkUpdate(const QModelIndex& index)
 {
 //    qDebug() << "BOOL LINK UPDATE CALLED";
-    auto link_itr1 = m_bool_links.lower_bound(index);
-    auto link_itr2 = m_bool_links.upper_bound(index);
+    QStringList linkkey = getKey(index);
+    auto link_itr1 = m_bool_links.lower_bound(linkkey);
+    auto link_itr2 = m_bool_links.upper_bound(linkkey);
     while(link_itr1 != link_itr2){
         bool link = getItem(index).value().toBool();
-        if(link_itr1->first == index){
+        if(link_itr1->first == linkkey){
             auto& [key,row] = link_itr1->second;
             if(!link && hasItem(key)){
 //                qDebug() << "NEED TO ERASE FROM TREE!";
@@ -121,11 +121,11 @@ void TreeModel::boolLinkUpdate(const QModelIndex& index)
 
 void TreeModel::comboLinkUpdate(const QModelIndex& index)
 {
-
-    auto linkdel_itr = m_combo_links.lower_bound(index);
-    auto linkend_itr = m_combo_links.upper_bound(index);
+    QStringList linkkey = getKey(index);
+    auto linkdel_itr = m_combo_links.lower_bound(linkkey);
+    auto linkend_itr = m_combo_links.upper_bound(linkkey);
     while(linkdel_itr != linkend_itr){
-        if(linkdel_itr->first == index){
+        if(linkdel_itr->first == linkkey){
             QString linkval = getItem(index).value().toString();
             auto& [key,combostr,row] = linkdel_itr->second;
             if((combostr != linkval) && hasItem(key)){
@@ -140,9 +140,9 @@ void TreeModel::comboLinkUpdate(const QModelIndex& index)
         }
         linkdel_itr++;
     }
-    auto linkadd_itr = m_combo_links.lower_bound(index);
+    auto linkadd_itr = m_combo_links.lower_bound(linkkey);
     while(linkadd_itr != linkend_itr){
-        if(linkadd_itr->first == index){
+        if(linkadd_itr->first == linkkey){
             QString linkval = getItem(index).value().toString();
             auto& [key,combostr,row] = linkadd_itr->second;
             if((combostr == linkval) && !hasItem(key)){

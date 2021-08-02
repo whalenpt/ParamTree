@@ -78,10 +78,9 @@ void generateTree(TreeModel* model)
     medium->addItem(secondPlasArg);
     model->addItem(std::move(medium));
 
-    QModelIndex plasmagen_index = model->getIndex(PLASMA_GEN_KEY);
-    model->boolLink(plasmagen_index,PLASMA_KEY);
-    model->boolLink(plasmagen_index,QStringList() << "MEDIUM" << "Plasma Name");
-    model->comboLink(model->getIndex(CD_KEY),INPUT_R_KEY,"RT");
+    model->boolLink(PLASMA_GEN_KEY,PLASMA_KEY);
+    model->boolLink(PLASMA_GEN_KEY,QStringList() << "MEDIUM" << "Plasma Name");
+    model->comboLink(CD_KEY,INPUT_R_KEY,"RT");
 }
 
 void generateDefaultMap()
@@ -132,8 +131,8 @@ void initInputT(TreeModel* model)
 
     // tinput is COPIED into the model! Don't track the tinput object (access it through the model)
     model->addItem(tinput,model->getIndex("INPUT PULSE"));
-    model->comboLink(model->getIndex(INPUT_T_SHAPE_KEY),INPUT_T_SUPERGAUSSM_KEY,"supergauss");
-    model->comboLink(model->getIndex(INPUT_T_SHAPE_KEY),INPUT_T_SUPERGAUSSN_KEY,"supergauss");
+    model->comboLink(INPUT_T_SHAPE_KEY,INPUT_T_SUPERGAUSSM_KEY,"supergauss");
+    model->comboLink(INPUT_T_SHAPE_KEY,INPUT_T_SUPERGAUSSN_KEY,"supergauss");
 }
 
 void initInputR(TreeModel* model)
