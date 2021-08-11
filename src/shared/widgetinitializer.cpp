@@ -23,8 +23,10 @@ namespace widgetinitializer{
             QVariant range = aux_map.value("RANGE");
             if(range.canConvert<QVector<QVariant>>()){
                 QVector<QVariant> v = range.value<QVector<QVariant>>();
-                widget->setMinimum(v[0].toInt());
-                widget->setMaximum(v[1].toInt());
+                if(v.size() > 0)
+                    widget->setMinimum(v[0].toInt());
+                if(v.size() > 1)
+                    widget->setMaximum(v[1].toInt());
             }         
         } else if(aux_map.contains("MIN") || aux_map.contains("MAX")){
             if(aux_map.contains("MIN")){
@@ -55,8 +57,10 @@ namespace widgetinitializer{
             QVariant range = aux_map.value("RANGE");
             if(range.canConvert<QVector<QVariant>>()){
                 QVector<QVariant> v = range.value<QVector<QVariant>>();
-                widget->setMinimum(v[0].toDouble());
-                widget->setMaximum(v[1].toDouble());
+                if(v.size() > 0)
+                    widget->setMinimum(v[0].toDouble());
+                if(v.size() > 1)
+                    widget->setMaximum(v[1].toDouble());
             } 
         } else if(aux_map.contains("MIN") || aux_map.contains("MAX")){
             if(aux_map.contains("MIN")){
