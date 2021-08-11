@@ -609,12 +609,24 @@ void writeAuxMap(QXmlStreamWriter& writer,const QMap<QString,QVariant>& map)
         writer.writeStartElement("AUXPARAM");
         writer.writeAttribute("KEY",aux_iter.key());
         QVariant val(aux_iter.value());
-        writer.writeAttribute("TYPENAME",val.typeName());
-        if(val.metaType().id() == QMetaType::QStringList)
+        QMetaType meta_type(val.metaType());
+        writer.writeAttribute("TYPENAME",meta_type.name());
+        if(meta_type.id() == QMetaType::QStringList)
             writer.writeAttribute("VALUE",val.toStringList().join(XML_SEPERATOR));
-        // QVariant of type QMetaType::QVariantList can be converted to a QStringList 
-        else if(val.metaType().id() == QMetaType::QVariantList)
-            writer.writeAttribute("VALUE",val.toStringList().join(XML_SEPERATOR));
+        else if(meta_type.id() == QMetaType::QVariantList){
+            QVariantList val_list = val.toList();
+            if(!val_list.isEmpty()){
+                QMetaType val_meta_type = val_list.at(0).metaType();
+                for(const auto& item : val_list){
+                    if(item.metaType() != val_meta_type){
+                        throw std::invalid_argument("writeAuxMap requires AUXPARAM QVariantLists\
+                                to all be of the same QVariant type.");
+                    }
+                }
+                writer.writeAttribute("SUBTYPENAME",val_meta_type.name());
+            } else
+                writer.writeAttribute("SUBTYPENAME","void");
+        }
         else
             writer.writeAttribute("VALUE",val.toString());
 
@@ -622,6 +634,51 @@ void writeAuxMap(QXmlStreamWriter& writer,const QMap<QString,QVariant>& map)
     }
     writer.writeEndElement();
 }
+
+void readAuxMap(QXmlStreamReader& reader,TreeItem* item)
+{
+    eatStreamCharacters(reader);
+    // Advance Reader from AUXMAP start element to AUXPARAM start element
+    while(reader.isStartElement() && reader.name() == QString("AUXPARAM")){
+        QXmlStreamAttributes attributes(reader.attributes());
+        QString key(attributes.value("KEY").toString());
+        QVariant val = QVariant(attributes.value("VALUE").toString());
+        QString valtype = attributes.value("TYPENAME").toString();
+        if(valtype == "QStringList"){
+            item->setAux(key,val.toString().split(XML_SEPERATOR));
+        } else if(valtype == "QVariantList"){
+            QString subvaltype = attributes.value("SUBTYPENAME").toString();
+            QMetaType meta_type = QMetaType::fromName(subvaltype.toUtf8());
+            QStringList stringlist = val.toString().split(XML_SEPERATOR);
+            QList<QVariant> varlist;
+            for(const auto& item : stringlist){
+                QVariant var(item);
+                var.convert(meta_type);
+                varlist.push_back(var);
+            }
+            item->setAux(key,varlist);
+        }
+        else{
+            QMetaType meta_type = QMetaType::fromName(valtype.toUtf8());
+            val.convert(meta_type);
+            item->setAux(key,val);
+        }
+        // Read to end element for AUXPARAM
+        //while(reader.tokenType() != QXmlStreamReader::EndElement)
+        while(!reader.isEndElement())
+            reader.readNext();
+        // Read until a new start element or the end element for AUXMAP
+        while(reader.readNext()){
+            if(reader.tokenType() == QXmlStreamReader::EndElement && (reader.name() == QString("AUXMAP")))
+                break;
+            if(reader.tokenType() == QXmlStreamReader::StartElement)
+                break;
+        }
+    }
+    eatStreamCharacters(reader);
+    // Reader at end of TREENODE
+}
+
 
 void TreeModel::writeLinkItems(QXmlStreamWriter& writer)
 {
@@ -944,38 +1001,6 @@ QXmlStreamReader::TokenType eatStreamCharacters(QXmlStreamReader& reader)
             return reader.tokenType();
     }
     return reader.tokenType();
-}
-
-void readAuxMap(QXmlStreamReader& reader,TreeItem* item)
-{
-    eatStreamCharacters(reader);
-    // Advance Reader from AUXMAP start element to AUXPARAM start element
-    while(reader.isStartElement() && reader.name() == QString("AUXPARAM")){
-        QXmlStreamAttributes attributes(reader.attributes());
-        QString key(attributes.value("KEY").toString());
-        QVariant val = QVariant(attributes.value("VALUE").toString());
-        QString valtype = attributes.value("TYPENAME").toString();
-        if(valtype == "QStringList"){
-            item->setAux(key,val.toString().split(XML_SEPERATOR));
-        } else{
-            QMetaType meta_type = QMetaType::fromName(valtype.toUtf8());
-            val.convert(meta_type);
-            item->setAux(key,val);
-        }
-        // Read to end element for AUXPARAM
-        //while(reader.tokenType() != QXmlStreamReader::EndElement)
-        while(!reader.isEndElement())
-            reader.readNext();
-        // Read until a new start element or the end element for AUXMAP
-        while(reader.readNext()){
-            if(reader.tokenType() == QXmlStreamReader::EndElement && (reader.name() == QString("AUXMAP")))
-                break;
-            if(reader.tokenType() == QXmlStreamReader::StartElement)
-                break;
-        }
-    }
-    eatStreamCharacters(reader);
-    // Reader at end of TREENODE
 }
 
 
