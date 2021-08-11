@@ -612,6 +612,9 @@ void writeAuxMap(QXmlStreamWriter& writer,const QMap<QString,QVariant>& map)
         writer.writeAttribute("TYPENAME",val.typeName());
         if(val.metaType().id() == QMetaType::QStringList)
             writer.writeAttribute("VALUE",val.toStringList().join(XML_SEPERATOR));
+        // QVariant of type QMetaType::QVariantList can be converted to a QStringList 
+        else if(val.metaType().id() == QMetaType::QVariantList)
+            writer.writeAttribute("VALUE",val.toStringList().join(XML_SEPERATOR));
         else
             writer.writeAttribute("VALUE",val.toString());
 
