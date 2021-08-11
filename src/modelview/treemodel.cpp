@@ -626,6 +626,7 @@ void writeAuxMap(QXmlStreamWriter& writer,const QMap<QString,QVariant>& map)
                 writer.writeAttribute("SUBTYPENAME",val_meta_type.name());
             } else
                 writer.writeAttribute("SUBTYPENAME","void");
+            writer.writeAttribute("VALUE",val.toStringList().join(XML_SEPERATOR));
         }
         else
             writer.writeAttribute("VALUE",val.toString());
