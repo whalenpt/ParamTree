@@ -129,7 +129,6 @@ void TreeModel::comboLinkUpdate(const QModelIndex& index)
             QString linkval = getItem(index).value().toString();
             auto& [key,combostr,row] = linkdel_itr->second;
             if((combostr != linkval) && hasItem(key)){
-//                qDebug() << "NEED TO ERASE FROM TREE!";
                 QModelIndex keyindex = getIndex(key);
                 TreeItem* parent = itemForIndex(keyindex.parent());
                 beginRemoveRows(keyindex.parent(),keyindex.row(),keyindex.row());
@@ -146,7 +145,6 @@ void TreeModel::comboLinkUpdate(const QModelIndex& index)
             QString linkval = getItem(index).value().toString();
             auto& [key,combostr,row] = linkadd_itr->second;
             if((combostr == linkval) && !hasItem(key)){
-//                qDebug() << "NEED TO ERASE FROM TREE!";
                 auto itr = m_combo_links_map.find(key);
                 if(itr != m_combo_links_map.end()){
                     insertItem(std::move(itr->second.first),itr->second.second,getIndex(key.first(key.size()-1)));
@@ -751,37 +749,38 @@ bool TreeModel::load(const QString& filename)
     QFile file(filename);
     if(!file.open(QIODevice::ReadOnly))
         return false;
-    qDebug() << "CLEAR CURRENT TREE";
+//    qDebug() << "CLEAR CURRENT TREE";
     clear();
 
     QXmlStreamReader reader(&file);
     //Check file type has TreeModel data in it (in the current version)
     reader.readNextStartElement();
-    qDebug() << "CHECK FILE FORMAT";
+//    qDebug() << "CHECK FILE FORMAT";
     if(reader.name() != FILE_FORMAT)
         return false;
     if(reader.attributes().value("VERSION") != VERSION_NUM)
         return false;
 
     eatStreamCharacters(reader);
-    qDebug() << "CHECK VISIBLE TREE";
+//    qDebug() << "CHECK VISIBLE TREE";
     if(!reader.isStartElement() || reader.name() != VISIBLE_TREE)
         return false;
     eatStreamCharacters(reader);
 
-    qDebug() << "READ VISIBLE TREE";
+//    qDebug() << "READ VISIBLE TREE";
     m_root_item = readTreeItem(reader);
     // Check that reader is at end of the visible tree
     if(!reader.isEndElement() || reader.name()!=VISIBLE_TREE)
         return false;
-    qDebug() << "END OF VISIBLE TREE";
+//    qDebug() << "END OF VISIBLE TREE";
 
     eatStreamCharacters(reader);
     readLinkItems(reader);
 
-    qDebug() << "RESET MODEL";
+//    qDebug() << "RESET MODEL";
     beginResetModel();
     endResetModel();
+    emit loadCompleted();
     return true;
 }
 
