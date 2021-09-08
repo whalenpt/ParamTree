@@ -91,6 +91,7 @@ public:
     bool save(const QString& filename);
     bool load(const QString& filename);
     void clear();
+    void reset();
 
     void saveToSettings(QSettings& settings, const TreeItem& item) const;
     void saveToSettings(QSettings& settings,const QModelIndex& index) const;

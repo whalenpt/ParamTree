@@ -742,6 +742,13 @@ void TreeModel::writeComboLinkItems(QXmlStreamWriter& writer)
     writer.writeEndElement();
 }
 
+void TreeModel::reset()
+{
+    beginResetModel();
+    endResetModel();
+}
+
+
 bool TreeModel::load(const QString& filename)
 {
     if(filename.isEmpty())
