@@ -787,7 +787,6 @@ bool TreeModel::load(const QString& filename)
 //    qDebug() << "RESET MODEL";
     beginResetModel();
     endResetModel();
-    emit loadCompleted();
     return true;
 }
 

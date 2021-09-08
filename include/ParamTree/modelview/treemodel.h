@@ -100,9 +100,6 @@ public:
 private slots:
     void linkUpdate(const QModelIndex& topLeft,const QModelIndex& /*bottomRight*/);
 
-signals:
-    void loadCompleted();
-
 private:
     void boolLinkUpdate(const QModelIndex& index);
     void comboLinkUpdate(const QModelIndex& index);
