@@ -83,7 +83,6 @@ public:
     // Returns index with the column set to 1
     QModelIndex getValIndex(const QModelIndex& index) const;
     QModelIndex getNameIndex(const QModelIndex& index) const;
-    QStringList getKey(const QModelIndex& index) const;
 
     void boolLink(const QStringList& linkey,const QStringList& key,int position = -1);
     void comboLink(const QStringList& linkey,const QStringList& key,const QString& combo_str,int position=-1);

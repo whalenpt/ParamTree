@@ -89,7 +89,7 @@ void TreeModel::comboLink(const QStringList& linkkey,const QStringList& key,\
 
 void TreeModel::boolLinkUpdate(const QModelIndex& index)
 {
-    QStringList linkkey = getKey(index);
+    QStringList linkkey = data(index,Role::KEY).toStringList();
     auto link_itr1 = m_bool_links.lower_bound(linkkey);
     auto link_itr2 = m_bool_links.upper_bound(linkkey);
     while(link_itr1 != link_itr2){
@@ -118,7 +118,7 @@ void TreeModel::boolLinkUpdate(const QModelIndex& index)
 
 void TreeModel::comboLinkUpdate(const QModelIndex& index)
 {
-    QStringList linkkey = getKey(index);
+    QStringList linkkey = data(index,Role::KEY).toStringList();
     auto linkdel_itr = m_combo_links.lower_bound(linkkey);
     auto linkend_itr = m_combo_links.upper_bound(linkkey);
     while(linkdel_itr != linkend_itr){
@@ -534,18 +534,6 @@ QModelIndex TreeModel::indexForPath(const QModelIndex &parent,
         }
     }
     return QModelIndex();
-}
-
-QStringList TreeModel::getKey(const QModelIndex& index) const
-{
-    QStringList key;
-    key.push_front(getNameIndex(index).data().toString());
-    QModelIndex parent_index(index.parent());
-    while(parent_index.isValid()){
-        key.push_front(parent_index.data().toString());
-        parent_index = parent_index.parent();
-    }
-    return key;
 }
 
 bool TreeModel::save(const QString& filepath)
