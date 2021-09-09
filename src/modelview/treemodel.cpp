@@ -89,7 +89,7 @@ void TreeModel::comboLink(const QStringList& linkkey,const QStringList& key,\
 
 void TreeModel::boolLinkUpdate(const QModelIndex& index)
 {
-//    qDebug() << "BOOL LINK UPDATE CALLED";
+    qDebug() << "BOOL LINK UPDATE CALLED";
     QStringList linkkey = getKey(index);
     auto link_itr1 = m_bool_links.lower_bound(linkkey);
     auto link_itr2 = m_bool_links.upper_bound(linkkey);
@@ -98,7 +98,7 @@ void TreeModel::boolLinkUpdate(const QModelIndex& index)
         if(link_itr1->first == linkkey){
             auto& [key,row] = link_itr1->second;
             if(!link && hasItem(key)){
-//                qDebug() << "NEED TO ERASE FROM TREE!";
+                qDebug() << "NEED TO ERASE FROM TREE!";
                 QModelIndex keyindex = getIndex(key);
                 TreeItem* parent = itemForIndex(keyindex.parent());
                 beginRemoveRows(keyindex.parent(),keyindex.row(),keyindex.row());
@@ -107,13 +107,14 @@ void TreeModel::boolLinkUpdate(const QModelIndex& index)
                 endRemoveRows();
             }
             else if(link && !hasItem(key)){
-//                qDebug() << "NEED TO ADD TO TREE!";
+                qDebug() << "NEED TO ADD TO TREE!";
                 auto itr = m_bool_links_map.find(key);
                 if(itr != m_bool_links_map.end()){
                     insertItem(std::move(itr->second.first),itr->second.second,getIndex(key.first(key.size()-1)));
                     m_bool_links_map.erase(itr);
                 }
-            }
+            } else
+                qDebug() << "OOPSIE";
         }
         link_itr1++;
     }
