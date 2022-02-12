@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(ParamTree LANGUAGES CXX)
+project(ParamTree VERSION 0.0.1)
 option(PARAMTREE_DEMOS "Build ParamTree demos" ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
