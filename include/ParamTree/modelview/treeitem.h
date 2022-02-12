@@ -2,7 +2,7 @@
 #define PARAMTREEITEM_H
 
 #include "ParamTree/ParamTree_global.h"
-#include <exception>
+#include <stdexcept>
 #include <memory>
 #include <QVariant>
 #include <QMap>
